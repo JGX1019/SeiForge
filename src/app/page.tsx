@@ -9,7 +9,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useTheme } from '@/app/ThemeProvider';
 
 export default function Home() {
-  const { theme } = useTheme();
+  const { theme = 'light' } = useTheme();
   const { totalAgents, isLoadingTotalAgents } = useContract();
   const [animatedTotalAgents, setAnimatedTotalAgents] = useState(0);
   const [visibleSection, setVisibleSection] = useState('hero');

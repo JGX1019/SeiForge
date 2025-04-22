@@ -4,7 +4,7 @@ import { useTheme } from '@/app/ThemeProvider';
 import { useState, useEffect } from 'react';
 
 export default function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme = 'light', toggleTheme = () => {} } = useTheme();
   const [isAnimating, setIsAnimating] = useState(false);
 
   const handleToggle = () => {
@@ -18,14 +18,14 @@ export default function ThemeToggle() {
       onClick={handleToggle}
       className={`relative p-2 rounded-full transition-all duration-500 ease-in-out
         ${theme === 'light' 
-          ? 'bg-gradient-to-br from-blue-50 to-indigo-100 shadow-lg text-indigo-600' 
-          : 'bg-gradient-to-br from-slate-700 to-slate-900 shadow-inner text-yellow-300 shadow-[0_0_10px_rgba(253,224,71,0.3)]'}
+          ? 'bg-gradient-to-br from-white to-sei-light-blue shadow-lg text-sei-blue' 
+          : 'bg-gradient-to-br from-sei-dark-blue to-sei-dark-purple shadow-inner text-sei-light-blue shadow-[0_0_10px_rgba(129,207,255,0.3)]'}
         ${isAnimating ? 'scale-110' : 'hover:scale-105'}
         mr-4 h-10 w-10 flex items-center justify-center overflow-hidden`}
       aria-label="Toggle theme"
     >
       <div className={`absolute inset-0 ${isAnimating ? 'animate-pulse' : ''} rounded-full opacity-30 
-        ${theme === 'light' ? 'bg-blue-200' : 'bg-slate-800'}`}></div>
+        ${theme === 'light' ? 'bg-sei-light-blue' : 'bg-sei-dark-blue'}`}></div>
       
       <span className={`${isAnimating ? 'animate-spin' : ''} transition-transform duration-500`}>
         {theme === 'light' ? (
@@ -54,7 +54,7 @@ export default function ThemeToggle() {
       </span>
       
       <span className={`absolute inset-0 rounded-full ${isAnimating ? 'animate-ripple' : ''} 
-        ${theme === 'light' ? 'bg-gradient-to-r from-blue-400 to-indigo-500' : 'bg-gradient-to-r from-yellow-400 to-orange-500'} 
+        ${theme === 'light' ? 'sei-blue-gradient' : 'sei-purple-gradient'} 
         opacity-0`}>
       </span>
     </button>

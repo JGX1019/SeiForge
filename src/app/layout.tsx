@@ -19,11 +19,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased bg-sei-offwhite text-sei-dark-gray dark:bg-gray-900 dark:text-white`}>
-        <Providers>
-          <ThemeProvider>
+        <ThemeProvider>
+          <Providers>
             {children}
-          </ThemeProvider>
-        </Providers>
+          </Providers>
+        </ThemeProvider>
       </body>
     </html>
   );
