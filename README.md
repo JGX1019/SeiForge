@@ -17,10 +17,11 @@ SeiForge is a blockchain-powered platform that democratizes AI agent creation an
 A decentralized platform where:
 1. Creators design AI personalities without coding
 2. Personalities are stored directly on Sei blockchain
-3. Users browse and rent specialized AI agents
+3. Users browse and rent specialized AI agents 
 4. Smart contracts handle payments and royalties
 5. Seamless integration with Gemini API for AI functionality
 6. Unique agent names ensure identity distinction
+7. Text-to-speech capabilities for dynamic voice interactions
 
 ## Key Features
 
@@ -41,6 +42,13 @@ A decentralized platform where:
 - Preview agent responses before purchasing
 - Subscription management
 
+### Agent Interaction
+- Real-time chat with AI personalities
+- Voice synthesis for realistic conversations
+- Context-aware responses
+- Personalized suggestions
+- Rating system for feedback
+
 ### Blockchain Integration
 - NFT representation of each AI agent
 - Smart contracts for rental payments
@@ -58,7 +66,7 @@ Wallet Connection (RainbowKit)
     ↓
 Smart Contracts (Sei Network - ethers.js/wagmi)
     ↓
-AI Service (Gemini API)
+AI Service (Gemini API + Web Speech API)
 ```
 
 ## Revenue Model
@@ -110,6 +118,22 @@ AI Service (Gemini API)
 - RainbowKit for wallet connections
 - ethers.js/wagmi for smart contract interaction
 - Direct Gemini API integration
+- Web Speech API for text-to-speech functionality
+
+## New Features (April 2025)
+
+### Voice Synthesis
+- AI agents can now speak their responses
+- Toggle between text and voice interactions
+- Natural-sounding speech for improved engagement
+- Individual message playback controls
+- Customizable speech rate and volume
+
+### Enhanced User Experience
+- Improved UI spacing and responsiveness
+- Better modal interactions for ratings and feedback
+- Streamlined agent detail pages
+- Optimized mobile experience
 
 ## Competitive Advantages
 
@@ -126,11 +150,13 @@ AI Service (Gemini API)
    - On-chain personality storage
    - Seamless AI integration
    - Cross-platform compatibility
+   - Voice synthesis capabilities
 
 4. **User Experience**
    - No-code creation tools
    - Instant deployment
    - Simple subscription model
+   - Multi-modal interaction (text and voice)
 
 ## Success Metrics
 
@@ -140,6 +166,7 @@ AI Service (Gemini API)
 - User retention rate
 - Platform transaction volume
 - Average agent rating scores
+- Voice feature engagement rate
 
 ## Development
 
