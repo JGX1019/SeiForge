@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { useAccount } from 'wagmi';
@@ -23,6 +23,63 @@ export default function AgentDetail() {
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'agent'; content: string }[]>([]);
   const [message, setMessage] = useState('');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const speechSynthRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // Initialize speech synthesis
+  useEffect(() => {
+    // Check if browser supports speech synthesis
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      speechSynthRef.current = new SpeechSynthesisUtterance();
+      
+      // Event listener for when speech is finished
+      speechSynthRef.current.onend = () => {
+        setIsSpeaking(false);
+      };
+      
+      // Event listener for errors
+      speechSynthRef.current.onerror = (e) => {
+        console.error('Speech synthesis error:', e);
+        setIsSpeaking(false);
+      };
+    }
+    
+    // Cleanup function
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  // Function to speak text
+  const speakText = (text: string) => {
+    if (!ttsEnabled || !speechSynthRef.current) return;
+    
+    // Cancel any ongoing speech
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      
+      // Set the text to speak
+      speechSynthRef.current.text = text;
+      
+      // Use a slightly slower rate for better comprehension
+      speechSynthRef.current.rate = 0.9;
+      
+      // Start speaking
+      setIsSpeaking(true);
+      window.speechSynthesis.speak(speechSynthRef.current);
+    }
+  };
+
+  // Stop speaking
+  const stopSpeaking = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
 
   useEffect(() => {
     const fetchAgentDetails = async () => {
@@ -146,6 +203,11 @@ export default function AgentDetail() {
       };
       
       setChatMessages(prev => [...prev, agentResponse]);
+
+      // Speak the AI response if TTS is enabled
+      if (ttsEnabled) {
+        speakText(aiResponse);
+      }
     } catch (error) {
       console.error('Error generating AI response:', error);
       
@@ -155,6 +217,11 @@ export default function AgentDetail() {
         content: `I'm sorry, I'm having trouble processing your request right now. Please try again in a moment.`
       };
       setChatMessages(prev => [...prev, fallbackResponse]);
+
+      // Speak the fallback response if TTS is enabled
+      if (ttsEnabled) {
+        speakText(fallbackResponse.content);
+      }
     } finally {
       setIsSendingMessage(false);
     }
@@ -164,7 +231,7 @@ export default function AgentDetail() {
     return (
       <main className="min-h-screen bg-sei-offwhite">
         <Navbar />
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-7xl mx-auto py-16 pt-20 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
           <div className="animate-spin h-12 w-12 mx-auto rounded-full border-t-2 border-b-2 border-sei-red"></div>
           <p className="mt-4 text-sei-dark-gray">Loading agent details...</p>
         </div>
@@ -176,7 +243,7 @@ export default function AgentDetail() {
     return (
       <main className="min-h-screen bg-sei-offwhite">
         <Navbar />
-        <div className="max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-7xl mx-auto py-16 pt-20 px-4 sm:py-24 sm:px-6 lg:px-8 text-center">
           <h1 className="text-3xl font-extrabold text-sei-dark-gray sm:text-4xl">
             Agent Not Found
           </h1>
@@ -200,7 +267,7 @@ export default function AgentDetail() {
     <main className="min-h-screen bg-sei-offwhite">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 pt-20 pb-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Agent Info */}
           <div className="lg:col-span-1">
@@ -342,8 +409,34 @@ export default function AgentDetail() {
           {/* Chat Interface */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md overflow-hidden h-full flex flex-col">
-              <div className="bg-sei-red px-6 py-4">
+              <div className="bg-sei-red px-6 py-4 flex justify-between items-center">
                 <h2 className="text-xl font-bold text-white">Chat with {agent.name}</h2>
+                <div className="flex items-center space-x-4">
+                  {isSpeaking && (
+                    <button 
+                      onClick={stopSpeaking}
+                      className="text-white hover:text-gray-200 focus:outline-none"
+                    >
+                      <span className="text-sm mr-1">Stop Audio</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM12.293 7.293a1 1 0 011.414 0L15 8.586l1.293-1.293a1 1 0 111.414 1.414L16.414 10l1.293 1.293a1 1 0 01-1.414 1.414L15 11.414l-1.293 1.293a1 1 0 01-1.414-1.414L13.586 10l-1.293-1.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  )}
+                  <div className="flex items-center">
+                    <label htmlFor="tts-toggle" className="text-sm text-white mr-2">Voice</label>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        id="tts-toggle"
+                        type="checkbox"
+                        checked={ttsEnabled}
+                        onChange={(e) => setTtsEnabled(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                </div>
               </div>
               
               {isRented ? (
@@ -403,7 +496,25 @@ export default function AgentDetail() {
                               : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm border border-gray-200 dark:border-gray-600 rounded-tl-none'
                           }`}
                         >
-                          {msg.content}
+                          <div className="flex flex-col">
+                            <div className="mb-1">{msg.content}</div>
+                            {msg.role === 'agent' && (
+                              <div className="flex justify-end mt-2">
+                                {ttsEnabled && (
+                                  <button
+                                    onClick={() => speakText(msg.content)}
+                                    disabled={isSpeaking}
+                                    aria-label="Play message"
+                                    className="text-gray-500 hover:text-blue-500 focus:outline-none p-1 ml-2"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                                    </svg>
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                         {msg.role === 'user' && (
                           <div className="flex-shrink-0 ml-3">
