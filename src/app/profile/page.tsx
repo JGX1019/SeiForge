@@ -23,57 +23,68 @@ type Agent = {
 export default function Profile() {
   const { theme = 'light' } = useTheme();
   const { address, isConnected } = useAccount();
-  const { userCreatedAgentIds, userRentedAgentIds, isLoadingUserCreatedAgents, isLoadingUserRentedAgents } = useContract();
+  const { userCreatedAgentIds, userRentedAgentIds, isLoadingUserCreatedAgents, isLoadingUserRentedAgents, getAgentDetails } = useContract();
   
   const [activeTab, setActiveTab] = useState('created');
   const [createdAgents, setCreatedAgents] = useState<Agent[]>([]);
   const [rentedAgents, setRentedAgents] = useState<Agent[]>([]);
   
-  // Simulate fetching agent data based on IDs
   useEffect(() => {
-    // Using setTimeout to simulate network request
-    setTimeout(() => {
-      // Add mock data for demonstration purposes
-      const mockCreatedAgents = [
-        {
-          id: 0,
-          name: "Math x Fun",
-          description: "Education agent with specialized expertise in mathematics",
-          creator: address || '',
-          price: BigInt(1 * 10**17),
-          imageUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=Math%20x%20Fun",
-          rating: 4.5,
-          traits: ["Education", "AI-Powered", "Mathematics"]
-        },
-        {
-          id: 1,
-          name: "History Explorer",
-          description: "Education agent focused on historical events and figures",
-          creator: address || '',
-          price: BigInt(12 * 10**16),
-          imageUrl: "https://api.dicebear.com/7.x/pixel-art/svg?seed=History%20Explorer",
-          rating: 4.2,
-          traits: ["Education", "AI-Powered", "History"]
-        }
-      ];
+    const fetchAgentData = async () => {
+      if (!address || !userCreatedAgentIds || !userRentedAgentIds) {
+        return;
+      }
       
-      const mockRentedAgents = [
-        {
-          id: 2,
-          name: "Business Advisor",
-          description: "Business agent ready to assist with strategic planning",
-          creator: '0x2ec8175015Bef5ad1C0BE1587C4A377bC083A2d8',
-          price: BigInt(15 * 10**16),
-          imageUrl: "https://api.dicebear.com/7.x/shapes/svg?seed=Business%20Advisor",
-          rating: 4.7,
-          traits: ["Business", "Rented", "Active"]
-        }
-      ];
-      
-      setCreatedAgents(mockCreatedAgents);
-      setRentedAgents(mockRentedAgents);
-    }, 1000);
-  }, [address]);
+      try {
+        // Fetch created agents
+        const createdPromises = Array.isArray(userCreatedAgentIds) 
+          ? userCreatedAgentIds.map(id => getAgentDetails(Number(id)))
+          : Object.keys(userCreatedAgentIds).map(id => getAgentDetails(Number(id)));
+        
+        // Fetch rented agents 
+        const rentedPromises = Array.isArray(userRentedAgentIds)
+          ? userRentedAgentIds.map(id => getAgentDetails(Number(id)))
+          : Object.keys(userRentedAgentIds).map(id => getAgentDetails(Number(id)));
+        
+        const fetchedCreatedAgents = await Promise.all(createdPromises);
+        const fetchedRentedAgents = await Promise.all(rentedPromises);
+        
+        // Transform contract agents to UI agents
+        const transformedCreatedAgents = fetchedCreatedAgents
+          .filter(agent => agent !== null)
+          .map(agent => ({
+            id: agent!.id,
+            name: agent!.name,
+            description: `${agent!.category} agent created by you`,
+            creator: agent!.creator,
+            price: agent!.rentalPricePerDay,
+            imageUrl: agent!.avatar,
+            rating: agent!.averageRating || 0,
+            traits: Array.isArray(agent!.traits) ? agent!.traits : [agent!.category]
+          }));
+        
+        const transformedRentedAgents = fetchedRentedAgents
+          .filter(agent => agent !== null)
+          .map(agent => ({
+            id: agent!.id,
+            name: agent!.name,
+            description: `${agent!.category} agent you've rented`,
+            creator: agent!.creator,
+            price: agent!.rentalPricePerDay,
+            imageUrl: agent!.avatar,
+            rating: agent!.averageRating || 0,
+            traits: Array.isArray(agent!.traits) ? agent!.traits : [agent!.category, "Rented"]
+          }));
+        
+        setCreatedAgents(transformedCreatedAgents);
+        setRentedAgents(transformedRentedAgents);
+      } catch (error) {
+        console.error('Error fetching agent data:', error);
+      }
+    };
+    
+    fetchAgentData();
+  }, [address, userCreatedAgentIds, userRentedAgentIds]);
   
   const renderAgentList = (agents: Agent[], isLoading: boolean) => {
     if (isLoading) {

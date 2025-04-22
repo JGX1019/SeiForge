@@ -15,6 +15,8 @@ export interface Agent {
   totalRentals: number;
   averageRating: number;
   isActive: boolean;
+  traits?: string[];   // Adding traits as an optional property
+  expertise?: string[]; // Adding expertise as an optional property too since it's used similarly
 }
 
 export function useContract() {
@@ -168,10 +170,38 @@ export function useContract() {
     }
   };
 
-  // Check if user has active rental
-  const hasActiveRental = (userId: string, agentId: number): boolean => {
-    // Mock implementation for UI development
-    return Math.random() > 0.5;
+  // Check if user has active rental and get rental details
+  const hasActiveRental = async (userId: string, agentId: number): Promise<{
+    hasRental: boolean;
+    rentalEndTime?: number;
+    remainingDays?: number;
+  }> => {
+    try {
+      // In a real implementation, this would check the blockchain for active rentals
+      // For now, we'll use a deterministic method for testing/development
+      
+      // Use the combination of user address and agent ID to determine if there's an active rental
+      const hasRental = userId.toLowerCase().includes(agentId.toString()) || 
+                       (userId.length > 0 && agentId % 2 === 0);
+                       
+      if (hasRental) {
+        // Calculate a future end date based on the current time
+        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+        const endTime = currentTime + (86400 * 7); // 7 days from now
+        const remainingDays = Math.ceil((endTime - currentTime) / 86400);
+        
+        return {
+          hasRental: true,
+          rentalEndTime: endTime,
+          remainingDays
+        };
+      }
+      
+      return { hasRental: false };
+    } catch (error) {
+      console.error('Error checking rental status:', error);
+      return { hasRental: false };
+    }
   };
 
   return {

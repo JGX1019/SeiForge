@@ -8,6 +8,7 @@ import { formatEther } from 'viem';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { useAccount } from 'wagmi';
 
 // Avatar options for random generation
 const AVATAR_STYLES = ['bottts', 'pixel-art', 'shapes', 'identicon', 'micah', 'thumbs'];
@@ -25,9 +26,10 @@ export default function Marketplace() {
   const { theme = 'light' } = useTheme();
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category');
-  
   // Use the actual contract implementation
-  const { totalAgents, isLoadingTotalAgents, getAgentDetails } = useContract();
+  const { totalAgents, isLoadingTotalAgents, getAgentDetails, userRentedAgentIds } = useContract();
+  const { address } = useAccount();
+  const isConnected = Boolean(address);
   const [agents, setAgents] = useState<EnhancedAgent[]>([]);
   const [isLoadingAgents, setIsLoadingAgents] = useState(true);
   const [filteredAgents, setFilteredAgents] = useState<EnhancedAgent[]>([]);
@@ -35,6 +37,7 @@ export default function Marketplace() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     initialCategory ? [initialCategory] : []
   );
+  const [rentedAgentIds, setRentedAgentIds] = useState<number[]>([]);
   
   const categories = ['Education', 'Entertainment', 'Business', 'Personal'];
   const traits = {
@@ -146,6 +149,28 @@ export default function Marketplace() {
       mounted = false;
     };
   }, [totalAgents]);
+  // Check which agents the user has rented
+  useEffect(() => {
+    const checkRentedAgents = async () => {
+      if (!address) return;
+      if (!isConnected || !address) return;
+      
+      try {
+        // Get the user's rented agent IDs
+        if (userRentedAgentIds) {
+          const ids = Array.isArray(userRentedAgentIds)
+            ? userRentedAgentIds.map(id => Number(id))
+            : Object.keys(userRentedAgentIds).map(id => Number(id));
+          
+          setRentedAgentIds(ids);
+        }
+      } catch (error) {
+        console.error("Error checking rented agents:", error);
+      }
+    };
+    
+    checkRentedAgents();
+  }, [address, isConnected, userRentedAgentIds]);
 
   // Filter agents based on search term and categories
   useEffect(() => {
@@ -363,11 +388,19 @@ export default function Marketplace() {
                       <div className="text-sei-blue dark:text-sei-light-blue font-medium">
                         {formatEther(agent.rentalPricePerDay)} SEI/day
                       </div>
-                      <Link href={`/agent/${agent.id}`}>
-                        <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
-                          Rent Now
-                        </button>
-                      </Link>
+                      {rentedAgentIds.includes(agent.id) ? (
+                        <Link href={`/agent/${agent.id}`}>
+                          <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
+                            Chat
+                          </button>
+                        </Link>
+                      ) : (
+                        <Link href={`/agent/${agent.id}`}>
+                          <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
+                            Rent Now
+                          </button>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </motion.div>
