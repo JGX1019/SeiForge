@@ -19,9 +19,77 @@ type Agent = {
   traits: string[];
 };
 
+// Create a mock version of useContract that includes agents and isLoadingAgents
+// This is a temporary fix until the contract integration is complete
+const useMockAgentData = () => {
+  const contract = useContract();
+  const [mockAgents, setMockAgents] = useState<Agent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate loading data
+    const timer = setTimeout(() => {
+      const data: Agent[] = [
+        {
+          id: 1,
+          name: 'Math Tutor',
+          description: 'Expert math tutor for all grade levels',
+          creator: '0x' + '1'.repeat(40),
+          price: BigInt(0.1 * 10**18),
+          imageUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=math',
+          rating: 4.8,
+          traits: ['Education', 'Patient', 'Analytical']
+        },
+        {
+          id: 2,
+          name: 'Creative Writer',
+          description: 'Help with creative writing and storytelling',
+          creator: '0x' + '2'.repeat(40),
+          price: BigInt(0.2 * 10**18),
+          imageUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=writer',
+          rating: 4.5,
+          traits: ['Entertainment', 'Creative', 'Articulate']
+        },
+        {
+          id: 3,
+          name: 'Business Consultant',
+          description: 'Strategic business advice and planning',
+          creator: '0x' + '3'.repeat(40),
+          price: BigInt(0.3 * 10**18),
+          imageUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=business',
+          rating: 4.7,
+          traits: ['Business', 'Strategic', 'Professional']
+        },
+        {
+          id: 4,
+          name: 'Fitness Coach',
+          description: 'Personalized workout and nutrition plans',
+          creator: '0x' + '4'.repeat(40),
+          price: BigInt(0.15 * 10**18),
+          imageUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=fitness',
+          rating: 4.6,
+          traits: ['Personal', 'Motivational', 'Knowledgeable']
+        }
+      ];
+      
+      setMockAgents(data);
+      setIsLoading(false);
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, []);
+  
+  return {
+    ...contract,
+    agents: mockAgents,
+    isLoadingAgents: isLoading
+  };
+};
+
 export default function Marketplace() {
   const { theme = 'light' } = useTheme();
-  const { agents, isLoadingAgents } = useContract();
+  // Use the mock data provider instead of useContract directly
+  const { agents, isLoadingAgents } = useMockAgentData();
   const [filteredAgents, setFilteredAgents] = useState<Agent[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -97,13 +165,13 @@ export default function Marketplace() {
             <h1 className="text-4xl font-bold mb-4 text-sei-blue dark:text-sei-light-blue">
               AI Agent Marketplace
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+            <p className="text-gray-700 dark:text-white max-w-2xl mx-auto">
               Browse and rent specialized AI agents for education, entertainment, business, or personal use
             </p>
           </div>
           
           {/* Search and filters */}
-          <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md mb-10">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-10 border border-gray-200 dark:border-gray-700">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="w-full md:w-2/3">
                 <input
@@ -111,7 +179,7 @@ export default function Marketplace() {
                   placeholder="Search for agents..."
                   value={searchTerm}
                   onChange={handleSearch}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sei-blue dark:focus:ring-sei-light-blue"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sei-blue dark:focus:ring-sei-light-blue"
                 />
               </div>
               
@@ -120,10 +188,10 @@ export default function Marketplace() {
                   <button
                     key={category}
                     onClick={() => toggleCategory(category)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${
                       selectedCategories.includes(category)
-                        ? 'bg-sei-blue text-white dark:bg-sei-light-blue'
-                        : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                        ? 'bg-sei-blue text-white dark:bg-sei-light-blue dark:text-black font-semibold'
+                        : 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-sei-light-blue/20 hover:text-sei-blue dark:hover:bg-sei-light-blue/20 dark:hover:text-sei-light-blue'
                     }`}
                   >
                     {category}
@@ -141,7 +209,7 @@ export default function Marketplace() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.3 }}
-                className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 dark:border-gray-700"
+                className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 transform hover:scale-[1.02]"
               >
                 {isLoadingAgents ? (
                   <div className="animate-pulse">
@@ -188,7 +256,7 @@ export default function Marketplace() {
                       <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
                         {agent.name || `Agent #${agent.id}`}
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                      <p className="text-gray-700 dark:text-white text-sm mb-4 line-clamp-2">
                         {agent.description || "This AI agent is waiting to be discovered. Explore its capabilities now."}
                       </p>
                       
@@ -205,7 +273,7 @@ export default function Marketplace() {
                           {agent.price ? `${formatEther(agent.price)} SEI` : "Free to try"}
                         </div>
                         <Link href={`/agent/${agent.id}`}>
-                          <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                          <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
                             Rent Now
                           </button>
                         </Link>
@@ -220,8 +288,8 @@ export default function Marketplace() {
           {/* Empty state */}
           {filteredAgents.length === 0 && !isLoadingAgents && (
             <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">No agents found</h3>
-              <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filters.</p>
+              <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-white">No agents found</h3>
+              <p className="text-gray-500 dark:text-gray-100">Try adjusting your search or filters.</p>
             </div>
           )}
         </div>

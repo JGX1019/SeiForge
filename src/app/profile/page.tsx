@@ -83,22 +83,22 @@ export default function Profile() {
     
     if (agents.length === 0) {
       return (
-        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg">
           <div className="mb-4">
-            <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-2">
             {activeTab === 'created' ? 'No Created Agents' : 'No Rented Agents'}
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+          <p className="text-gray-600 dark:text-white mb-6 max-w-md mx-auto">
             {activeTab === 'created' 
               ? "You haven't created any AI agents yet. Create your first agent now!" 
               : "You haven't rented any AI agents yet. Explore the marketplace to find agents."}
           </p>
           <Link href={activeTab === 'created' ? '/create' : '/marketplace'}>
-            <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-5 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+            <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-5 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
               {activeTab === 'created' ? 'Create Agent' : 'Explore Marketplace'}
             </button>
           </Link>
@@ -149,7 +149,7 @@ export default function Profile() {
               <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
                 {agent.name}
               </h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+              <p className="text-gray-600 dark:text-white text-sm mb-4 line-clamp-2">
                 {agent.description}
               </p>
               
@@ -188,13 +188,13 @@ export default function Profile() {
               <svg className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
-              <h2 className="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-300">
+              <h2 className="text-2xl font-bold mb-4 text-gray-700 dark:text-white">
                 Connect Your Wallet
               </h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">
+              <p className="text-gray-500 dark:text-white mb-6">
                 Connect your wallet to view your profile, created agents, and active rentals.
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-gray-500 dark:text-gray-200">
                 Click the connect button in the top right corner
               </p>
             </div>
@@ -215,7 +215,7 @@ export default function Profile() {
             <div className="bg-gradient-to-r from-sei-blue to-sei-purple dark:from-sei-light-blue dark:to-sei-purple rounded-xl shadow-lg overflow-hidden mb-8">
               <div className="px-6 py-10 sm:px-10 sm:py-16">
                 <div className="flex flex-col sm:flex-row items-center">
-                  <div className="bg-white dark:bg-gray-800 rounded-full p-2 mr-6 mb-4 sm:mb-0">
+                  <div className="bg-white dark:bg-gray-800 rounded-full p-2 mr-6 mb-4 sm:mb-0 shadow-lg">
                     <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden">
                       <img 
                         src={`https://api.dicebear.com/7.x/identicon/svg?seed=${address}`} 
@@ -229,17 +229,17 @@ export default function Profile() {
                     <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
                       My Profile
                     </h1>
-                    <p className="text-white/80 text-sm sm:text-base mb-4 break-all">
+                    <p className="text-white text-sm sm:text-base mb-4 break-all">
                       {address}
                     </p>
                     <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-white">
                       <div>
-                        <div className="text-xl font-medium">{Object.keys(userCreatedAgentIds || {}).length}</div>
-                        <div className="text-sm text-white/80">Created Agents</div>
+                        <div className="text-xl font-medium">{userCreatedAgentIds ? Object.keys(userCreatedAgentIds).length : 0}</div>
+                        <div className="text-sm text-white">Created Agents</div>
                       </div>
                       <div>
-                        <div className="text-xl font-medium">{Object.keys(userRentedAgentIds || {}).length}</div>
-                        <div className="text-sm text-white/80">Rented Agents</div>
+                        <div className="text-xl font-medium">{userRentedAgentIds ? Object.keys(userRentedAgentIds).length : 0}</div>
+                        <div className="text-sm text-white">Rented Agents</div>
                       </div>
                     </div>
                   </div>
@@ -253,23 +253,37 @@ export default function Profile() {
                 <nav className="-mb-px flex">
                   <button
                     onClick={() => setActiveTab('created')}
-                    className={`py-4 px-6 text-sm font-medium ${
+                    className={`relative py-4 px-6 text-sm font-medium transition-colors duration-200 group
+                    ${
                       activeTab === 'created'
-                        ? 'border-b-2 border-sei-blue dark:border-sei-light-blue text-sei-blue dark:text-sei-light-blue'
+                        ? 'text-sei-blue dark:text-sei-light-blue'
                         : 'text-gray-500 dark:text-gray-400 hover:text-sei-blue dark:hover:text-sei-light-blue'
                     }`}
                   >
                     My Created Agents
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r transition-transform duration-300 ease-out transform 
+                      ${activeTab === 'created' 
+                        ? 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-100' 
+                        : 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-0'} 
+                      group-hover:scale-x-100 origin-left`}>
+                    </span>
                   </button>
                   <button
                     onClick={() => setActiveTab('rented')}
-                    className={`py-4 px-6 text-sm font-medium ${
+                    className={`relative py-4 px-6 text-sm font-medium transition-colors duration-200 group
+                    ${
                       activeTab === 'rented'
-                        ? 'border-b-2 border-sei-blue dark:border-sei-light-blue text-sei-blue dark:text-sei-light-blue'
+                        ? 'text-sei-blue dark:text-sei-light-blue'
                         : 'text-gray-500 dark:text-gray-400 hover:text-sei-blue dark:hover:text-sei-light-blue'
                     }`}
                   >
                     My Rented Agents
+                    <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r transition-transform duration-300 ease-out transform 
+                      ${activeTab === 'rented' 
+                        ? 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-100' 
+                        : 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-0'} 
+                      group-hover:scale-x-100 origin-left`}>
+                    </span>
                   </button>
                 </nav>
               </div>

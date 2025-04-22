@@ -2,7 +2,6 @@
 
 import { http, createConfig } from 'wagmi'
 import { getDefaultWallets } from '@rainbow-me/rainbowkit'
-import { mainnet } from 'wagmi/chains'
 import { seiTestnet } from './chains'
 
 // No need to redefine seiTestnet since we're importing it from ./chains.ts

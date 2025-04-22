@@ -139,7 +139,7 @@ export default function Home() {
             </motion.h1>
             
             <motion.p 
-              className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto"
+              className="text-lg md:text-xl text-white/95 mb-8 max-w-2xl mx-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.8 }}
@@ -170,7 +170,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/marketplace">
                 <motion.button 
-                  className="bg-white text-sei-blue hover:bg-sei-light-blue hover:text-white px-8 py-3 rounded-lg font-medium w-full sm:w-auto shadow-lg transition-colors duration-200"
+                  className="px-8 py-3 rounded-lg bg-sei-blue/80 hover:bg-sei-blue text-white border border-white/20 font-medium w-full sm:w-auto shadow-lg transition-colors duration-200"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, x: -20 }}
@@ -257,7 +257,7 @@ export default function Home() {
               Why Create on SeiForge?
             </motion.h2>
             <motion.p 
-              className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
+              className="text-lg text-gray-700 dark:text-gray-100 max-w-2xl mx-auto"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -321,7 +321,7 @@ export default function Home() {
                 </div>
                 
                 <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{feature.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
+                <p className="text-gray-600 dark:text-gray-100">{feature.description}</p>
                 
                 <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-sei-light-blue to-sei-blue dark:from-sei-light-blue dark:to-sei-purple w-0 group-hover:w-full transition-all duration-700"></div>
               </motion.div>
@@ -373,7 +373,7 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold mb-6 text-sei-blue dark:text-sei-light-blue">
               Ready to Build Your AI Agent?
             </h2>
-            <p className="text-lg mb-8 text-gray-700 dark:text-gray-300">
+            <p className="text-lg mb-8 text-gray-700 dark:text-gray-100">
               Join the SeiForge community today and start creating AI agents that generate passive income. 
               The future of AI belongs to creators.
             </p>
@@ -387,7 +387,7 @@ export default function Home() {
               </motion.button>
             </Link>
           </motion.div>
-        </div>
+    </div>
       </section>
     </main>
   );

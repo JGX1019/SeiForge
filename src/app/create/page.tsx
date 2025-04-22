@@ -94,7 +94,7 @@ export default function CreateAgent() {
               <h1 className="text-4xl font-bold mb-4 text-sei-blue dark:text-sei-light-blue">
                 Create Your AI Agent
               </h1>
-              <p className="text-gray-600 dark:text-gray-300">
+              <p className="text-gray-700 dark:text-white">
                 Design a custom AI personality that others can rent on the marketplace
               </p>
             </div>
@@ -103,13 +103,13 @@ export default function CreateAgent() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-lg border border-gray-200 dark:border-gray-700"
+              className="bg-white dark:bg-gray-800 rounded-xl p-6 md:p-8 shadow-lg border border-gray-200 dark:border-gray-700"
             >
               <form onSubmit={handleSubmit}>
                 <div className="space-y-6">
                   {/* Name */}
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-800 dark:text-white mb-1">
                       Agent Name*
                     </label>
                     <input
@@ -125,7 +125,7 @@ export default function CreateAgent() {
                   
                   {/* Description */}
                   <div>
-                    <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-800 dark:text-white mb-1">
                       Description*
                     </label>
                     <textarea
@@ -141,7 +141,7 @@ export default function CreateAgent() {
                   
                   {/* Category */}
                   <div>
-                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label htmlFor="category" className="block text-sm font-medium text-gray-800 dark:text-white mb-1">
                       Category*
                     </label>
                     <select
@@ -158,7 +158,7 @@ export default function CreateAgent() {
                   
                   {/* Traits */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-800 dark:text-white mb-1">
                       Traits* (at least one)
                     </label>
                     <div className="flex">
@@ -199,7 +199,7 @@ export default function CreateAgent() {
                   
                   {/* Expertise */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-800 dark:text-white mb-1">
                       Expertise* (at least one)
                     </label>
                     <div className="flex">
@@ -240,7 +240,7 @@ export default function CreateAgent() {
                   
                   {/* Price */}
                   <div>
-                    <label htmlFor="price" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label htmlFor="price" className="block text-sm font-medium text-gray-800 dark:text-white mb-1">
                       Daily Rental Price (SEI)
                     </label>
                     <div className="relative">
@@ -262,7 +262,7 @@ export default function CreateAgent() {
                         <span className="text-gray-500 dark:text-gray-400">SEI</span>
                       </div>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-200">
                       Leave empty for a free agent
                     </p>
                   </div>
@@ -272,7 +272,7 @@ export default function CreateAgent() {
                     <button
                       type="submit"
                       disabled={isCreating}
-                      className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-colors duration-200 ${
+                      className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-colors duration-200 shadow-md ${
                         isCreating
                           ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed'
                           : 'bg-sei-blue hover:bg-sei-purple dark:bg-sei-light-blue dark:hover:bg-sei-purple'

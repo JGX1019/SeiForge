@@ -5,31 +5,32 @@ export default {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
         // Sei primary colors
-        'sei-red': '#E11D48',
-        'sei-light-red': '#F43F5E',
-        'sei-dark-red': '#BE123C',
+        'sei-red': '#F43F5E',
+        'sei-light-red': '#FB7185',
+        'sei-dark-red': '#E11D48',
         // Sei blues based on branding
-        'sei-blue': '#272090',
-        'sei-light-blue': '#71B0DB',
-        'sei-mid-blue': '#445FB5',
-        'sei-purple': '#452797',
+        'sei-blue': '#323AC0',
+        'sei-light-blue': '#85C0E9',
+        'sei-mid-blue': '#567AD5',
+        'sei-purple': '#6E3FB7',
         // UI colors
         'sei-white': '#ffffff',
-        'sei-offwhite': '#f8fafc',
-        'sei-light-gray': '#e2e8f0',
-        'sei-gray': '#94a3b8',
-        'sei-dark-gray': '#334155',
+        'sei-offwhite': '#1e293b',
+        'sei-light-gray': '#334155',
+        'sei-gray': '#64748b',
+        'sei-dark-gray': '#e2e8f0',
+        'sei-dark-blue': '#0f172a',
+        'sei-dark-purple': '#2e1065',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
       },
       backgroundImage: {
-        'sei-gradient': 'linear-gradient(135deg, var(--sei-red) 0%, var(--sei-dark-red) 100%)',
+        'sei-gradient': 'linear-gradient(135deg, var(--sei-light-red) 0%, var(--sei-red) 100%)',
         'sei-blue-gradient': 'linear-gradient(135deg, var(--sei-light-blue) 0%, var(--sei-blue) 100%)',
         'sei-purple-gradient': 'linear-gradient(135deg, var(--sei-mid-blue) 0%, var(--sei-purple) 100%)',
       },
@@ -37,6 +38,7 @@ export default {
         'pulse-glow': 'pulse-glow 2s infinite',
         'float': 'float 6s ease-in-out infinite',
         'shine': 'shine 2s forwards',
+        'ripple': 'ripple 0.8s ease-out 1',
       },
       keyframes: {
         'pulse-glow': {
@@ -51,8 +53,12 @@ export default {
           '0%': { backgroundPosition: '-200% center' },
           '100%': { backgroundPosition: '200% center' },
         },
+        'ripple': {
+          '0%': { transform: 'scale(0)', opacity: 0.5 },
+          '100%': { transform: 'scale(2.5)', opacity: 0 },
+        },
       },
     },
   },
   plugins: [],
-} 
+}

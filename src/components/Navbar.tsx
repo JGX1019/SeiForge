@@ -8,7 +8,7 @@ import { useTheme } from "@/app/ThemeProvider";
 import { usePathname } from 'next/navigation';
 
 export default function Navbar() {
-  const { theme = 'light' } = useTheme();
+  const { theme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
@@ -28,9 +28,7 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? theme === 'light'
-            ? 'bg-white/95 shadow-md backdrop-blur-sm'
-            : 'bg-gray-900/95 shadow-lg backdrop-blur-sm border-b border-gray-800'
+          ? 'backdrop-blur-sm bg-transparent border-b border-white/10'
           : 'bg-transparent'
       }`}
     >
@@ -38,76 +36,63 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
-              <span className={`text-xl font-bold ${
-                theme === 'light' 
-                  ? 'text-sei-blue' 
-                  : 'text-sei-light-blue'
-              }`}>
+              <span className="text-xl font-bold text-sei-light-blue">
                 SeiForge
               </span>
             </Link>
           </div>
           <div className="hidden md:flex items-center justify-center flex-1">
-            <div className="flex space-x-4">
-              <Link
-                href="/"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 
-                ${
-                  isLinkActive('/')
-                    ? theme === 'light'
-                      ? 'bg-sei-light-blue/20 text-sei-blue'
-                      : 'bg-sei-light-blue/10 text-sei-light-blue'
-                    : theme === 'light'
-                    ? 'text-gray-700 hover:text-sei-blue hover:bg-sei-light-blue/10'
-                    : 'text-gray-300 hover:text-sei-light-blue hover:bg-sei-light-blue/5'
-                }`}
-              >
-                Home
-              </Link>
+            <div className="flex space-x-8">
               <Link
                 href="/marketplace"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 
+                className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 group
                 ${
                   isLinkActive('/marketplace')
-                    ? theme === 'light'
-                      ? 'bg-sei-light-blue/20 text-sei-blue'
-                      : 'bg-sei-light-blue/10 text-sei-light-blue'
-                    : theme === 'light'
-                    ? 'text-gray-700 hover:text-sei-blue hover:bg-sei-light-blue/10'
-                    : 'text-gray-300 hover:text-sei-light-blue hover:bg-sei-light-blue/5'
+                    ? 'text-sei-light-blue'
+                    : 'text-gray-200 hover:text-sei-light-blue'
                 }`}
               >
                 Marketplace
+                <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r transition-transform duration-300 ease-out transform 
+                  ${isLinkActive('/marketplace') 
+                    ? 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-100' 
+                    : 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-0'} 
+                  group-hover:scale-x-100 origin-left`}>
+                </span>
               </Link>
               <Link
                 href="/create"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 
+                className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 group
                 ${
                   isLinkActive('/create')
-                    ? theme === 'light'
-                      ? 'bg-sei-light-blue/20 text-sei-blue'
-                      : 'bg-sei-light-blue/10 text-sei-light-blue'
-                    : theme === 'light'
-                    ? 'text-gray-700 hover:text-sei-blue hover:bg-sei-light-blue/10'
-                    : 'text-gray-300 hover:text-sei-light-blue hover:bg-sei-light-blue/5'
+                    ? 'text-sei-light-blue'
+                    : 'text-gray-200 hover:text-sei-light-blue'
                 }`}
               >
                 Create Agent
+                <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r transition-transform duration-300 ease-out transform 
+                  ${isLinkActive('/create') 
+                    ? 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-100' 
+                    : 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-0'} 
+                  group-hover:scale-x-100 origin-left`}>
+                </span>
               </Link>
               <Link
                 href="/profile"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 
+                className={`relative px-3 py-2 text-sm font-medium transition-colors duration-200 group
                 ${
                   isLinkActive('/profile')
-                    ? theme === 'light'
-                      ? 'bg-sei-light-blue/20 text-sei-blue'
-                      : 'bg-sei-light-blue/10 text-sei-light-blue'
-                    : theme === 'light'
-                    ? 'text-gray-700 hover:text-sei-blue hover:bg-sei-light-blue/10'
-                    : 'text-gray-300 hover:text-sei-light-blue hover:bg-sei-light-blue/5'
+                    ? 'text-sei-light-blue'
+                    : 'text-gray-200 hover:text-sei-light-blue'
                 }`}
               >
                 Profile
+                <span className={`absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r transition-transform duration-300 ease-out transform 
+                  ${isLinkActive('/profile') 
+                    ? 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-100' 
+                    : 'from-sei-light-blue via-sei-blue to-sei-purple scale-x-0'} 
+                  group-hover:scale-x-100 origin-left`}>
+                </span>
               </Link>
             </div>
           </div>
@@ -122,4 +107,4 @@ export default function Navbar() {
       </div>
     </nav>
   );
-} 
+}

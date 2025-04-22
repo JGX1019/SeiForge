@@ -36,15 +36,15 @@ export default function AgentCard({
   const getCategoryBadgeColor = (category: string) => {
     switch (category.toLowerCase()) {
       case 'education':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+        return 'bg-blue-900 text-blue-300';
       case 'entertainment':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+        return 'bg-purple-900 text-purple-300';
       case 'business':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+        return 'bg-green-900 text-green-300';
       case 'personal':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+        return 'bg-yellow-900 text-yellow-300';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+        return 'bg-gray-700 text-gray-300';
     }
   };
 
@@ -57,7 +57,7 @@ export default function AgentCard({
             className={`h-4 w-4 ${
               i < rating 
                 ? 'text-yellow-400 animate-pulse-soft' 
-                : 'text-gray-300 dark:text-gray-600'
+                : 'text-gray-600'
             }`}
             style={{ animationDelay: `${i * 0.1}s` }}
             fill="currentColor"
@@ -74,13 +74,13 @@ export default function AgentCard({
   return (
     <Link href={`/agent/${id}`} className="block">
       <div 
-        className={`card-hover gradient-border bg-white dark:bg-gray-800 rounded-lg overflow-hidden ${!isActive ? 'opacity-50' : ''}`}
+        className={`card-hover gradient-border bg-gray-800 rounded-lg overflow-hidden ${!isActive ? 'opacity-50' : ''}`}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="h-48 bg-sei-light-gray dark:bg-gray-700 relative overflow-hidden">
+        <div className="h-48 bg-gray-700 relative overflow-hidden">
           {/* Shiny effect overlay */}
-          <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 ${isHovered ? 'animate-shine' : ''} dark:via-gray-300`}></div>
+          <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-0 ${isHovered ? 'animate-shine' : ''}`}></div>
           
           <img
             src={avatar || getAvatarFallback()}
@@ -96,21 +96,21 @@ export default function AgentCard({
             </span>
           </div>
           
-          {/* Glowing effect in dark mode */}
-          <div className={`absolute inset-0 dark:bg-sei-red/5 dark:${isHovered ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}></div>
+          {/* Glowing effect */}
+          <div className={`absolute inset-0 bg-sei-red/5 ${isHovered ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}></div>
         </div>
         <div className="p-4 relative">
-          <h3 className="text-lg font-medium text-sei-dark-gray dark:text-white truncate dark:glow-text">{name}</h3>
+          <h3 className="text-lg font-medium text-white truncate glow-text">{name}</h3>
           <div className="flex items-center mt-1">
             {renderStars(rating)}
-            <span className="ml-1 text-xs text-sei-gray dark:text-gray-400">({totalRentals} rentals)</span>
+            <span className="ml-1 text-xs text-gray-400">({totalRentals} rentals)</span>
           </div>
           <div className="mt-2 flex justify-between items-center">
             <div className="flex items-center">
-              <span className="text-sei-red dark:text-sei-light-red font-semibold">{formatEther(rentalPricePerDay)} SEI</span>
-              <span className="text-xs text-sei-gray dark:text-gray-400 ml-1">/ day</span>
+              <span className="text-sei-light-red font-semibold">{formatEther(rentalPricePerDay)} SEI</span>
+              <span className="text-xs text-gray-400 ml-1">/ day</span>
             </div>
-            <button className={`sei-button bg-sei-red hover:bg-sei-dark-red dark:bg-sei-light-red dark:hover:bg-sei-red text-white px-4 py-1.5 text-sm rounded-md ${isHovered ? 'scale-105' : ''}`}>
+            <button className={`sei-button bg-sei-light-red hover:bg-sei-red text-white px-4 py-1.5 text-sm rounded-md ${isHovered ? 'scale-105' : ''}`}>
               Rent
             </button>
           </div>
@@ -121,4 +121,4 @@ export default function AgentCard({
       </div>
     </Link>
   );
-} 
+}
