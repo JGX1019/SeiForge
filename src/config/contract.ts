@@ -1,4 +1,4 @@
-export const SeiForgeAddress = '0xbAA8ab9851BF6dDd914870088F8B43d102F8eA7d'
+export const SeiForgeAddress = '0x732242a37884edc89a17F6A6Ff622edF95CbEc86'
 
 export const SeiForgeABI = [
 	{

@@ -168,38 +168,11 @@ AI Service (Gemini API + Web Speech API)
 - Average agent rating scores
 - Voice feature engagement rate
 
-## Development
-
-### Getting Started
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/seiforge.git
-cd seiforge
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a `.env.local` file with the following variables:
-```
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_wallet_connect_project_id
-```
-
-4. Run the development server:
-```bash
-npm run dev
-```
-
-5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
-
 ### Smart Contract
 
 The SeiForge smart contract is deployed on Sei Testnet at address:
 ```
-0xbAA8ab9851BF6dDd914870088F8B43d102F8eA7d
+0x732242a37884edc89a17F6A6Ff622edF95CbEc86
 ```
 
 ### Network Details
