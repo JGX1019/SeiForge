@@ -27,12 +27,12 @@ export default function AgentDetail() {
   // Mock data for UI development
   const mockAgent = {
     id: agentId,
-    name: 'Math Tutor Pro',
+    name: 'Math x Fun',
     category: 'Education',
-    avatar: 'https://avatars.dicebear.com/api/bottts/mathtutor.svg',
+    avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=Math%20x%20Fun`,
     traits: ['Patient', 'Encouraging', 'Detailed'],
     expertise: ['Algebra', 'Calculus', 'Geometry', 'Statistics'],
-    creator: '0x1234567890abcdef1234567890abcdef12345678',
+    creator: '0x2ec8175015Bef5ad1C0BE1587C4A377bC083A2d8',
     rentalPricePerDay: BigInt(0.1 * 10**18),
     totalEarnings: BigInt(1.5 * 10**18),
     totalRentals: 124,
@@ -285,55 +285,99 @@ export default function AgentDetail() {
               
               {isRented ? (
                 <>
-                  <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                  <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 dark:bg-gray-800">
                     {chatMessages.length === 0 && (
                       <div className="text-center py-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-sei-gray" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                        <h3 className="mt-2 text-sm font-medium text-sei-dark-gray">Start a conversation</h3>
-                        <p className="mt-1 text-sm text-sei-gray">Send a message to begin chatting with this AI agent</p>
+                        <div className="mb-4 relative w-24 h-24 mx-auto">
+                          <img
+                            src={agent.avatar}
+                            alt={agent.name}
+                            className="w-full h-full object-cover rounded-full border-4 border-white dark:border-gray-700 shadow-lg"
+                          />
+                          <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-400 rounded-full border-2 border-white dark:border-gray-700"></div>
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Start chatting with {agent.name}</h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                          Specialized in {agent.expertise.join(", ")}
+                        </p>
+                        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto">
+                          {["How can you help me with math?", "Explain a difficult concept", "Can you solve a problem?", "Tell me about yourself"].map((suggestion, i) => (
+                            <button
+                              key={i}
+                              onClick={() => {
+                                setMessage(suggestion);
+                                setTimeout(() => handleSendMessage(), 100);
+                              }}
+                              className="px-3 py-2 text-sm bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 text-left hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     )}
                     
                     {chatMessages.map((msg, index) => (
                       <div 
                         key={index} 
-                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
                       >
+                        {msg.role === 'agent' && (
+                          <div className="flex-shrink-0 mr-3">
+                            <img 
+                              src={agent.avatar}
+                              alt={agent.name}
+                              className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700"
+                            />
+                          </div>
+                        )}
                         <div 
-                          className={`max-w-xs sm:max-w-md rounded-lg px-4 py-2 ${
+                          className={`max-w-xs sm:max-w-md rounded-2xl p-4 ${
                             msg.role === 'user' 
-                              ? 'bg-sei-red text-white rounded-tr-none' 
-                              : 'bg-sei-light-gray text-sei-dark-gray rounded-tl-none'
+                              ? 'bg-blue-600 text-white rounded-tr-none' 
+                              : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm border border-gray-200 dark:border-gray-600 rounded-tl-none'
                           }`}
                         >
                           {msg.content}
                         </div>
+                        {msg.role === 'user' && (
+                          <div className="flex-shrink-0 ml-3">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-gray-600 flex items-center justify-center text-blue-600 dark:text-blue-300 font-medium">
+                              {address ? address.slice(0, 2) : 'Me'}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                     
                     {isSendingMessage && (
-                      <div className="flex justify-start">
-                        <div className="max-w-xs sm:max-w-md rounded-lg px-4 py-2 bg-sei-light-gray text-sei-dark-gray">
-                          <div className="flex space-x-1">
-                            <div className="h-2 w-2 bg-sei-gray rounded-full animate-bounce"></div>
-                            <div className="h-2 w-2 bg-sei-gray rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                            <div className="h-2 w-2 bg-sei-gray rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                      <div className="flex justify-start animate-fade-in">
+                        <div className="flex-shrink-0 mr-3">
+                          <img 
+                            src={agent.avatar}
+                            alt={agent.name}
+                            className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700"
+                          />
+                        </div>
+                        <div className="max-w-xs sm:max-w-md rounded-2xl p-4 bg-white dark:bg-gray-700 text-gray-800 dark:text-white shadow-sm border border-gray-200 dark:border-gray-600 rounded-tl-none">
+                          <div className="flex space-x-2">
+                            <div className="h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-400 animate-pulse"></div>
+                            <div className="h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                            <div className="h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-400 animate-pulse" style={{ animationDelay: '0.4s' }}></div>
                           </div>
                         </div>
                       </div>
                     )}
                   </div>
                   
-                  <div className="border-t border-sei-light-gray p-4">
-                    <div className="flex">
+                  <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
+                    <div className="flex items-center">
                       <input
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
                         placeholder="Type your message..."
-                        className="flex-1 block border border-sei-light-gray rounded-l-md shadow-sm py-2 px-3 focus:outline-none focus:ring-sei-red focus:border-sei-red sm:text-sm"
+                        className="flex-1 block border border-gray-300 dark:border-gray-600 rounded-l-lg shadow-sm py-3 px-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         onKeyPress={(e) => {
                           if (e.key === 'Enter') {
                             handleSendMessage();
@@ -343,16 +387,25 @@ export default function AgentDetail() {
                       <button
                         onClick={handleSendMessage}
                         disabled={!message.trim() || isSendingMessage}
-                        className={`inline-flex items-center px-4 py-2 border border-transparent rounded-r-md shadow-sm text-sm font-medium text-white bg-sei-red ${
+                        className={`inline-flex items-center px-4 py-3 border border-transparent rounded-r-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors ${
                           !message.trim() || isSendingMessage
                             ? 'opacity-70 cursor-not-allowed'
-                            : 'hover:bg-sei-dark-red'
+                            : ''
                         }`}
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                         </svg>
                       </button>
+                    </div>
+                    <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1"></span>
+                        <span>{agent.name} is online and ready to assist</span>
+                      </div>
+                      <div>
+                        <span>Powered by SeiForge AI</span>
+                      </div>
                     </div>
                   </div>
                 </>
@@ -437,4 +490,4 @@ export default function AgentDetail() {
       )}
     </main>
   );
-} 
+}

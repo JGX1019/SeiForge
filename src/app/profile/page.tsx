@@ -31,36 +31,49 @@ export default function Profile() {
   
   // Simulate fetching agent data based on IDs
   useEffect(() => {
-    // In a real implementation, you would fetch full agent data using the IDs
-    // For now, we'll create placeholders
-    if (!isLoadingUserCreatedAgents && userCreatedAgentIds) {
-      const mockCreatedAgents = Object.keys(userCreatedAgentIds).map((id, index) => ({
-        id: parseInt(id),
-        name: `My Agent ${index + 1}`,
-        description: "This is an AI agent I created on SeiForge",
-        creator: address || '',
-        price: BigInt(0.1 * 10**18),
-        imageUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=agent${id}`,
-        rating: 4.5,
-        traits: ['Friendly', 'Helpful']
-      }));
+    // Using setTimeout to simulate network request
+    setTimeout(() => {
+      // Add mock data for demonstration purposes
+      const mockCreatedAgents = [
+        {
+          id: 0,
+          name: "Math x Fun",
+          description: "Education agent with specialized expertise in mathematics",
+          creator: address || '',
+          price: BigInt(1 * 10**17),
+          imageUrl: "https://api.dicebear.com/7.x/bottts/svg?seed=Math%20x%20Fun",
+          rating: 4.5,
+          traits: ["Education", "AI-Powered", "Mathematics"]
+        },
+        {
+          id: 1,
+          name: "History Explorer",
+          description: "Education agent focused on historical events and figures",
+          creator: address || '',
+          price: BigInt(12 * 10**16),
+          imageUrl: "https://api.dicebear.com/7.x/pixel-art/svg?seed=History%20Explorer",
+          rating: 4.2,
+          traits: ["Education", "AI-Powered", "History"]
+        }
+      ];
+      
+      const mockRentedAgents = [
+        {
+          id: 2,
+          name: "Business Advisor",
+          description: "Business agent ready to assist with strategic planning",
+          creator: '0x2ec8175015Bef5ad1C0BE1587C4A377bC083A2d8',
+          price: BigInt(15 * 10**16),
+          imageUrl: "https://api.dicebear.com/7.x/shapes/svg?seed=Business%20Advisor",
+          rating: 4.7,
+          traits: ["Business", "Rented", "Active"]
+        }
+      ];
+      
       setCreatedAgents(mockCreatedAgents);
-    }
-    
-    if (!isLoadingUserRentedAgents && userRentedAgentIds) {
-      const mockRentedAgents = Object.keys(userRentedAgentIds).map((id, index) => ({
-        id: parseInt(id),
-        name: `Rented Agent ${index + 1}`,
-        description: "This is an AI agent I'm currently renting",
-        creator: '0x' + '1'.repeat(40),
-        price: BigInt(0.2 * 10**18),
-        imageUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=rented${id}`,
-        rating: 4.2,
-        traits: ['Intelligent', 'Creative']
-      }));
       setRentedAgents(mockRentedAgents);
-    }
-  }, [address, userCreatedAgentIds, userRentedAgentIds, isLoadingUserCreatedAgents, isLoadingUserRentedAgents]);
+    }, 1000);
+  }, [address]);
   
   const renderAgentList = (agents: Agent[], isLoading: boolean) => {
     if (isLoading) {
@@ -301,4 +314,4 @@ export default function Profile() {
       </div>
     </main>
   );
-} 
+}

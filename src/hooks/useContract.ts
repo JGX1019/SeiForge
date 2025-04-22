@@ -125,24 +125,39 @@ export function useContract() {
     });
   };
 
-  // Get agent details by ID (modified to not use destructuring on promise return)
+  // Get agent details by ID (modified to map contract data structure correctly)
   const getAgentDetails = async (agentId: number): Promise<Agent | null> => {
     try {
-      // Instead of using useReadContract directly, use a regular fetch approach
+      // Based on the contract structure, agent IDs start from 0 not 1
       // This is a simplified mock for the UI
-      // In a real implementation, you would use a proper RPC call
+      // In a real implementation, you would use a proper RPC call to the contract
       
-      // Mock data for this specific agent
+      // Sample agent data based on the contract structure
+      const styles = ['bottts', 'pixel-art', 'shapes', 'identicon', 'micah'];
+      const randomStyle = styles[agentId % styles.length];
+      
+      // Sample agent names and categories based on agent ID
+      const sampleNames = [
+        "Math x Fun",
+        "History Explorer",
+        "Business Advisor",
+        "Fitness Coach",
+        "Language Tutor",
+        "Sci-Fi Storyteller"
+      ];
+      
+      const sampleCategories = ["Education", "Entertainment", "Business", "Personal"];
+      
       const mockAgentData = {
         id: agentId,
-        name: 'Agent ' + agentId,
-        category: ['Education', 'Entertainment', 'Business', 'Personal'][agentId % 4],
-        avatar: `https://avatars.dicebear.com/api/bottts/agent${agentId}.svg`,
-        creator: '0x1234567890abcdef1234567890abcdef12345678',
-        rentalPricePerDay: BigInt((0.1 + (agentId * 0.05)) * 10**18),
-        totalEarnings: BigInt((agentId * 0.3) * 10**18),
-        totalRentals: agentId * 10,
-        averageRating: 3.5 + (agentId % 2),
+        name: sampleNames[agentId % sampleNames.length],
+        category: sampleCategories[agentId % sampleCategories.length],
+        avatar: `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${encodeURIComponent(sampleNames[agentId % sampleNames.length])}`,
+        creator: '0x2ec8175015Bef5ad1C0BE1587C4A377bC083A2d8',
+        rentalPricePerDay: BigInt(1 * 10**17), // 0.1 SEI
+        totalEarnings: BigInt(agentId * 0.05 * 10**18),
+        totalRentals: agentId * 5,
+        averageRating: 3 + (agentId % 3),
         isActive: true
       };
       
@@ -179,4 +194,4 @@ export function useContract() {
     isConfirmed,
     error,
   };
-} 
+}
