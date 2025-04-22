@@ -2,195 +2,229 @@
 
 import { useState, useEffect } from 'react';
 import Navbar from '@/components/Navbar';
-import AgentCard from '@/components/AgentCard';
 import { useContract } from '@/hooks/useContract';
+import { useTheme } from '@/app/ThemeProvider';
+import { formatEther } from 'viem';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
 
-const categories = ['All', 'Education', 'Entertainment', 'Business', 'Personal'];
+type Agent = {
+  id: number;
+  name: string;
+  description: string;
+  creator: string;
+  price: bigint;
+  imageUrl: string;
+  rating: number;
+  traits: string[];
+};
 
 export default function Marketplace() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const { theme = 'light' } = useTheme();
+  const { agents, isLoadingAgents } = useContract();
+  const [filteredAgents, setFilteredAgents] = useState<Agent[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [displayedAgents, setDisplayedAgents] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   
-  // Simulated agents for UI preview
-  const mockAgents = [
-    {
-      id: 1,
-      name: 'Math Tutor Pro',
-      category: 'Education',
-      avatar: 'https://avatars.dicebear.com/api/bottts/mathtutor.svg',
-      rentalPricePerDay: BigInt(0.1 * 10**18),
-      creator: '0x1234567890abcdef1234567890abcdef12345678',
-      rating: 4.5,
-      totalRentals: 124,
-      isActive: true,
-    },
-    {
-      id: 2,
-      name: 'Shakespeare Bot',
-      category: 'Entertainment',
-      avatar: 'https://avatars.dicebear.com/api/bottts/shakespeare.svg',
-      rentalPricePerDay: BigInt(0.2 * 10**18),
-      creator: '0x1234567890abcdef1234567890abcdef12345678',
-      rating: 4.2,
-      totalRentals: 87,
-      isActive: true,
-    },
-    {
-      id: 3,
-      name: 'Business Consultant',
-      category: 'Business',
-      avatar: 'https://avatars.dicebear.com/api/bottts/business.svg',
-      rentalPricePerDay: BigInt(0.5 * 10**18),
-      creator: '0x1234567890abcdef1234567890abcdef12345678',
-      rating: 4.8,
-      totalRentals: 56,
-      isActive: true,
-    },
-    {
-      id: 4,
-      name: 'Fitness Coach',
-      category: 'Personal',
-      avatar: 'https://avatars.dicebear.com/api/bottts/fitness.svg',
-      rentalPricePerDay: BigInt(0.15 * 10**18),
-      creator: '0x1234567890abcdef1234567890abcdef12345678',
-      rating: 4.6,
-      totalRentals: 92,
-      isActive: true,
-    },
-    {
-      id: 5,
-      name: 'Science Teacher',
-      category: 'Education',
-      avatar: 'https://avatars.dicebear.com/api/bottts/science.svg',
-      rentalPricePerDay: BigInt(0.12 * 10**18),
-      creator: '0x1234567890abcdef1234567890abcdef12345678',
-      rating: 4.3,
-      totalRentals: 73,
-      isActive: true,
-    },
-    {
-      id: 6,
-      name: 'Comedian AI',
-      category: 'Entertainment',
-      avatar: 'https://avatars.dicebear.com/api/bottts/comedian.svg',
-      rentalPricePerDay: BigInt(0.18 * 10**18),
-      creator: '0x1234567890abcdef1234567890abcdef12345678',
-      rating: 3.9,
-      totalRentals: 112,
-      isActive: true,
-    },
+  const categories = [
+    'Education', 
+    'Entertainment', 
+    'Business', 
+    'Personal'
   ];
 
+  // Simulate loading real agent data from the contract
   useEffect(() => {
-    // Filter agents based on category and search term
-    let filteredAgents = mockAgents;
-    
-    if (selectedCategory !== 'All') {
-      filteredAgents = filteredAgents.filter(agent => 
-        agent.category.toLowerCase() === selectedCategory.toLowerCase()
-      );
+    if (!isLoadingAgents && agents) {
+      setFilteredAgents(agents);
+    } else {
+      // Placeholder until real data is available
+      const placeholderAgents: Agent[] = Array.from({ length: 8 }).map((_, i) => ({
+        id: i,
+        name: '',
+        description: '',
+        creator: '',
+        price: BigInt(0),
+        imageUrl: '',
+        rating: 0,
+        traits: []
+      }));
+      setFilteredAgents(placeholderAgents);
     }
+  }, [agents, isLoadingAgents]);
+
+  // Filter agents based on search term and categories
+  useEffect(() => {
+    if (!agents) return;
+    
+    let results = [...agents];
     
     if (searchTerm) {
-      filteredAgents = filteredAgents.filter(agent => 
-        agent.name.toLowerCase().includes(searchTerm.toLowerCase())
+      results = results.filter(agent => 
+        agent.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        agent.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
-    setDisplayedAgents(filteredAgents);
-    setIsLoading(false);
-  }, [selectedCategory, searchTerm]);
+    if (selectedCategories.length > 0) {
+      results = results.filter(agent => 
+        agent.traits.some(trait => selectedCategories.includes(trait))
+      );
+    }
+    
+    setFilteredAgents(results);
+  }, [agents, searchTerm, selectedCategories]);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(category) 
+        ? prev.filter(c => c !== category) 
+        : [...prev, category]
+    );
+  };
 
   return (
-    <main className="min-h-screen bg-sei-offwhite">
+    <main className="min-h-screen bg-white dark:bg-gray-900">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        {/* Marketplace Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-extrabold text-sei-dark-gray sm:text-4xl">
-            AI Personality Marketplace
-          </h1>
-          <p className="mt-3 max-w-2xl mx-auto text-xl text-sei-gray sm:mt-4">
-            Browse and rent specialized AI agents created by our community
-          </p>
-        </div>
-        
-        {/* Search and Filter */}
-        <div className="mb-10 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="relative rounded-md shadow-sm w-full md:w-auto">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search AI agents..."
-              className="block w-full md:w-80 pl-10 pr-3 py-2 border border-sei-light-gray rounded-md focus:outline-none focus:ring-2 focus:ring-sei-red focus:border-sei-red sm:text-sm"
-            />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-sei-gray" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+      <div className="pt-20 pb-10">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 pt-8">
+            <h1 className="text-4xl font-bold mb-4 text-sei-blue dark:text-sei-light-blue">
+              AI Agent Marketplace
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+              Browse and rent specialized AI agents for education, entertainment, business, or personal use
+            </p>
+          </div>
+          
+          {/* Search and filters */}
+          <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg shadow-md mb-10">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="w-full md:w-2/3">
+                <input
+                  type="text"
+                  placeholder="Search for agents..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sei-blue dark:focus:ring-sei-light-blue"
+                />
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                {categories.map(category => (
+                  <button
+                    key={category}
+                    onClick={() => toggleCategory(category)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
+                      selectedCategories.includes(category)
+                        ? 'bg-sei-blue text-white dark:bg-sei-light-blue'
+                        : 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           
-          <div className="flex gap-2 overflow-x-auto w-full md:w-auto py-2">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
-                  selectedCategory === category
-                    ? 'bg-sei-red text-white'
-                    : 'bg-white text-sei-dark-gray hover:bg-sei-light-gray'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        {/* Agent Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden h-80">
-                <div className="h-48 bg-sei-light-gray"></div>
-                <div className="p-4">
-                  <div className="h-4 bg-sei-light-gray rounded w-3/4 mb-2"></div>
-                  <div className="h-4 bg-sei-light-gray rounded w-1/2"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : displayedAgents.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {displayedAgents.map((agent) => (
-              <AgentCard
+          {/* Agent grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredAgents.map((agent, index) => (
+              <motion.div
                 key={agent.id}
-                id={agent.id}
-                name={agent.name}
-                category={agent.category}
-                avatar={agent.avatar}
-                rentalPricePerDay={agent.rentalPricePerDay}
-                creator={agent.creator}
-                rating={agent.rating}
-                totalRentals={agent.totalRentals}
-                isActive={agent.isActive}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05, duration: 0.3 }}
+                className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-200 dark:border-gray-700"
+              >
+                {isLoadingAgents ? (
+                  <div className="animate-pulse">
+                    <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
+                    <div className="p-6">
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mt-6"></div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="h-48 bg-gradient-to-r from-sei-blue/80 to-sei-purple dark:from-sei-light-blue/50 dark:to-sei-purple relative overflow-hidden">
+                      {agent.imageUrl && (
+                        <img 
+                          src={agent.imageUrl} 
+                          alt={agent.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <svg 
+                                key={i} 
+                                className={`w-4 h-4 ${i < agent.rating ? 'text-yellow-400' : 'text-gray-400'}`} 
+                                fill="currentColor" 
+                                viewBox="0 0 20 20"
+                              >
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            ))}
+                          </div>
+                          <span className="text-white text-xs">
+                            ID: {agent.id.toString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="p-6">
+                      <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+                        {agent.name || `Agent #${agent.id}`}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                        {agent.description || "This AI agent is waiting to be discovered. Explore its capabilities now."}
+                      </p>
+                      
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {agent.traits?.map((trait, i) => (
+                          <span key={i} className="px-2 py-1 text-xs bg-sei-light-blue/10 text-sei-blue dark:bg-sei-light-blue/20 dark:text-sei-light-blue rounded-full">
+                            {trait}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <div className="flex justify-between items-center mt-4">
+                        <div className="text-sei-blue dark:text-sei-light-blue font-medium">
+                          {agent.price ? `${formatEther(agent.price)} SEI` : "Free to try"}
+                        </div>
+                        <Link href={`/agent/${agent.id}`}>
+                          <button className="bg-sei-blue hover:bg-sei-purple text-white dark:bg-sei-light-blue dark:hover:bg-sei-purple px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                            Rent Now
+                          </button>
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </motion.div>
             ))}
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-sei-gray" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h3 className="mt-4 text-lg font-medium text-sei-dark-gray">No agents found</h3>
-            <p className="mt-2 text-sei-gray">Try adjusting your search or filter criteria</p>
-          </div>
-        )}
+          
+          {/* Empty state */}
+          {filteredAgents.length === 0 && !isLoadingAgents && (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-gray-300">No agents found</h3>
+              <p className="text-gray-500 dark:text-gray-400">Try adjusting your search or filters.</p>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

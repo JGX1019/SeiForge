@@ -76,11 +76,11 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen dark:bg-gray-900 overflow-hidden">
+    <main className="min-h-screen bg-white dark:bg-gray-900 overflow-hidden">
       <Navbar />
       
       {/* Hero Section */}
-      <section id="hero" ref={containerRef} className="relative bg-gradient-to-br from-sei-red to-sei-dark-red text-white overflow-hidden">
+      <section id="hero" ref={containerRef} className="relative bg-gradient-to-br from-sei-blue to-sei-purple dark:from-sei-mid-blue dark:to-sei-purple text-white overflow-hidden">
         {/* Dynamic background patterns */}
         <div className="absolute inset-0 overflow-hidden opacity-30">
           <div className="absolute w-full h-full bg-[url('/patterns/circuit.svg')] bg-repeat opacity-10"></div>
@@ -111,7 +111,7 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             style={{ 
-              transform: `rotateX(${mousePosition.y * 10}deg) rotateY(${mousePosition.x * 10}deg)`,
+              transform: `rotateX(${mousePosition.y * 5}deg) rotateY(${mousePosition.x * 5}deg)`,
               transformStyle: 'preserve-3d'
             }}
             className="max-w-4xl mx-auto text-center"
@@ -123,10 +123,10 @@ export default function Home() {
               transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
             >
               <span className="relative z-10">
-                Create & Trade <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-yellow-400 glow-text">AI Agents</span> on Sei
+                Create & Trade <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-sei-light-blue glow-text">AI Agents</span> on Sei
               </span>
               <motion.span 
-                className="absolute -inset-1 rounded-lg bg-gradient-to-r from-sei-light-red/20 to-sei-dark-red/20 blur-lg"
+                className="absolute -inset-1 rounded-lg bg-gradient-to-r from-sei-light-blue/20 to-sei-blue/20 blur-lg"
                 animate={{ 
                   scale: [1, 1.05, 1],
                 }}
@@ -148,8 +148,8 @@ export default function Home() {
               Build once, earn forever on the fastest Layer-1 blockchain.
             </motion.p>
             
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 md:p-8 mb-12 border border-white/20 transform hover:scale-105 transition-all duration-300">
-              <div className="text-4xl md:text-5xl font-bold text-amber-300 mb-3">
+            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-6 md:p-8 mb-12 border border-white/20 transform hover:scale-105 transition-all duration-300 shadow-lg">
+              <div className="text-4xl md:text-5xl font-bold text-white mb-3">
                 {isLoadingTotalAgents ? (
                   <div className="h-12 w-32 mx-auto bg-white/20 animate-pulse rounded"></div>
                 ) : (
@@ -164,13 +164,13 @@ export default function Home() {
                   </motion.span>
                 )}
               </div>
-              <p className="text-sm md:text-base text-white/80">Agents Created So Far</p>
+              <p className="text-sm md:text-base text-white">Agents Created So Far</p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/marketplace">
                 <motion.button 
-                  className="sei-button px-8 py-3 rounded-lg text-white font-medium w-full sm:w-auto"
+                  className="bg-white text-sei-blue hover:bg-sei-light-blue hover:text-white px-8 py-3 rounded-lg font-medium w-full sm:w-auto shadow-lg transition-colors duration-200"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, x: -20 }}
@@ -183,7 +183,7 @@ export default function Home() {
               
               <Link href="/create">
                 <motion.button 
-                  className="px-8 py-3 rounded-lg bg-white/10 backdrop-blur-sm text-white border border-white/20 font-medium w-full sm:w-auto hover:bg-white/20 transition-all"
+                  className="px-8 py-3 rounded-lg bg-sei-blue/80 hover:bg-sei-blue text-white border border-white/20 font-medium w-full sm:w-auto shadow-lg transition-colors duration-200"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, x: 20 }}
@@ -197,7 +197,7 @@ export default function Home() {
           </motion.div>
           
           {/* Floating elements */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-sei-dark-red to-transparent"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-sei-purple to-transparent"></div>
           
           <motion.div 
             className="absolute -bottom-10 left-1/4 w-24 h-24 lg:w-32 lg:h-32"
@@ -211,7 +211,7 @@ export default function Home() {
               repeatType: "reverse"
             }}
           >
-            <div className="w-full h-full bg-gradient-to-tr from-sei-light-red/30 to-amber-400/30 rounded-full backdrop-blur-xl"></div>
+            <div className="w-full h-full bg-gradient-to-tr from-white/30 to-sei-light-blue/30 rounded-full backdrop-blur-xl"></div>
           </motion.div>
           
           <motion.div 
@@ -227,7 +227,7 @@ export default function Home() {
               repeatType: "reverse"
             }}
           >
-            <div className="w-full h-full bg-gradient-to-bl from-blue-400/20 to-purple-500/20 rounded-full backdrop-blur-xl"></div>
+            <div className="w-full h-full bg-gradient-to-bl from-white/20 to-sei-light-blue/20 rounded-full backdrop-blur-xl"></div>
           </motion.div>
         </motion.div>
         
@@ -248,7 +248,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <motion.h2 
-              className="text-3xl md:text-4xl font-bold mb-4 text-sei-dark-red dark:text-sei-light-red"
+              className="text-3xl md:text-4xl font-bold mb-4 text-sei-blue dark:text-sei-light-blue"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -257,7 +257,7 @@ export default function Home() {
               Why Create on SeiForge?
             </motion.h2>
             <motion.p 
-              className="text-lg text-sei-dark-gray dark:text-sei-light-gray max-w-2xl mx-auto"
+              className="text-lg text-gray-700 dark:text-gray-300 max-w-2xl mx-auto"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -308,22 +308,22 @@ export default function Home() {
             ].map((feature, index) => (
               <motion.div 
                 key={index}
-                className="bg-sei-offwhite dark:bg-gray-800 rounded-xl p-6 card-hover border border-sei-light-gray dark:border-gray-700 relative overflow-hidden group"
+                className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 card-hover border border-gray-200 dark:border-gray-700 relative overflow-hidden group shadow-md"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: feature.delay, duration: 0.5 }}
               >
-                <div className="absolute -right-10 -top-10 w-24 h-24 bg-sei-red/5 dark:bg-sei-red/10 rounded-full group-hover:scale-150 transition-all duration-700"></div>
+                <div className="absolute -right-10 -top-10 w-24 h-24 bg-sei-light-blue/5 dark:bg-sei-light-blue/10 rounded-full group-hover:scale-150 transition-all duration-700"></div>
                 
-                <div className="mb-4 text-3xl bg-gradient-to-br from-sei-red to-sei-dark-red dark:from-sei-light-red dark:to-sei-red inline-block rounded-lg p-3 text-white">
+                <div className="mb-4 text-3xl bg-gradient-to-br from-sei-blue to-sei-purple dark:from-sei-light-blue dark:to-sei-purple inline-block rounded-lg p-3 text-white">
                   {feature.icon}
                 </div>
                 
-                <h3 className="text-xl font-semibold mb-2 text-sei-dark-gray dark:text-white">{feature.title}</h3>
-                <p className="text-sei-gray dark:text-gray-300">{feature.description}</p>
+                <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{feature.title}</h3>
+                <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
                 
-                <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-sei-red to-sei-dark-red dark:from-sei-light-red dark:to-sei-red w-0 group-hover:w-full transition-all duration-700"></div>
+                <div className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-sei-light-blue to-sei-blue dark:from-sei-light-blue dark:to-sei-purple w-0 group-hover:w-full transition-all duration-700"></div>
               </motion.div>
             ))}
           </div>
@@ -334,14 +334,14 @@ export default function Home() {
       <section 
         id="cta" 
         ref={ctaRef}
-        className="py-20 bg-gradient-to-br from-sei-red/10 to-sei-dark-red/5 dark:from-sei-red/20 dark:to-sei-dark-red/10 relative overflow-hidden"
+        className="py-20 bg-gradient-to-br from-sei-light-blue/10 to-sei-blue/5 dark:from-sei-light-blue/5 dark:to-sei-purple/10 relative overflow-hidden"
       >
         {/* Animated shapes */}
         <div className="absolute inset-0">
           {Array.from({ length: 6 }).map((_, i) => (
             <motion.div
               key={i}
-              className="absolute rounded-full bg-sei-red/10 dark:bg-sei-light-red/10"
+              className="absolute rounded-full bg-sei-light-blue/10 dark:bg-sei-light-blue/5"
               style={{
                 width: `${50 + Math.random() * 100}px`,
                 height: `${50 + Math.random() * 100}px`,
@@ -370,16 +370,16 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-sei-dark-red dark:text-sei-light-red">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 text-sei-blue dark:text-sei-light-blue">
               Ready to Build Your AI Agent?
             </h2>
-            <p className="text-lg mb-8 text-sei-dark-gray dark:text-gray-300">
+            <p className="text-lg mb-8 text-gray-700 dark:text-gray-300">
               Join the SeiForge community today and start creating AI agents that generate passive income. 
               The future of AI belongs to creators.
             </p>
             <Link href="/create">
               <motion.button 
-                className="sei-button px-10 py-4 rounded-lg text-white font-medium text-lg shadow-lg"
+                className="bg-sei-blue hover:bg-sei-purple dark:bg-sei-light-blue dark:hover:bg-sei-purple text-white px-10 py-4 rounded-lg font-medium text-lg shadow-lg transition-colors duration-200"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
