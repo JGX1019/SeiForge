@@ -60,7 +60,9 @@ export default function Profile() {
             price: agent!.rentalPricePerDay,
             imageUrl: agent!.avatar,
             rating: agent!.averageRating || 0,
-            traits: Array.isArray(agent!.traits) ? agent!.traits : [agent!.category]
+            traits: agent!.traits && agent!.traits.length > 0 
+              ? agent!.traits 
+              : [agent!.category]
           }));
         
         const transformedRentedAgents = fetchedRentedAgents
@@ -73,7 +75,9 @@ export default function Profile() {
             price: agent!.rentalPricePerDay,
             imageUrl: agent!.avatar,
             rating: agent!.averageRating || 0,
-            traits: Array.isArray(agent!.traits) ? agent!.traits : [agent!.category, "Rented"]
+            traits: agent!.traits && agent!.traits.length > 0
+              ? [...agent!.traits, "Rented"]
+              : [agent!.category, "Rented"]
           }));
         
         setCreatedAgents(transformedCreatedAgents);
@@ -84,7 +88,7 @@ export default function Profile() {
     };
     
     fetchAgentData();
-  }, [address, userCreatedAgentIds, userRentedAgentIds]);
+  }, [address, userCreatedAgentIds, userRentedAgentIds, getAgentDetails]);
   
   const renderAgentList = (agents: Agent[], isLoading: boolean) => {
     if (isLoading) {

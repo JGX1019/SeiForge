@@ -12,7 +12,6 @@ import { useAccount } from 'wagmi';
 
 // Avatar options for random generation
 const AVATAR_STYLES = ['bottts', 'pixel-art', 'shapes', 'identicon', 'micah', 'thumbs'];
-const AVATAR_BACKGROUNDS = ['gradient-pink', 'gradient-blue', 'gradient-purple', 'gradient-red', 'gradient-yellow', 'gradient-green'];
 
 // Enhanced agent type with UI-specific properties
 type EnhancedAgent = Agent & {
@@ -22,15 +21,83 @@ type EnhancedAgent = Agent & {
   rating: number;
 };
 
+// Define category-related data
+const CATEGORIES = ['Education', 'Entertainment', 'Business', 'Personal'];
+const TRAITS = {
+  'Education': ['Patient', 'Analytical', 'Knowledgeable', 'Articulate', 'Structured'],
+  'Entertainment': ['Creative', 'Humorous', 'Engaging', 'Improvisational', 'Expressive'],
+  'Business': ['Professional', 'Strategic', 'Analytical', 'Decisive', 'Motivational'],
+  'Personal': ['Empathetic', 'Supportive', 'Motivational', 'Encouraging', 'Intuitive']
+};
+
+const DESCRIPTIONS = {
+  'Education': [
+    'Expert tutor for all grade levels',
+    'Specialized language instructor',
+    'Subject matter expert for academic topics',
+    'Test preparation assistant',
+    'Personalized learning companion'
+  ],
+  'Entertainment': [
+    'Creative storyteller for immersive experiences',
+    'Character roleplaying personality',
+    'Interactive game companion',
+    'Humor and comedy specialist',
+    'Historical figure simulation'
+  ],
+  'Business': [
+    'Strategic business advisor',
+    'Sales training assistant',
+    'Industry consultant with expertise',
+    'Market analysis specialist',
+    'Customer service representative'
+  ],
+  'Personal': [
+    'Life coach for personal growth',
+    'Fitness training companion',
+    'Mental health support assistant',
+    'Productivity enhancement assistant',
+    'Daily planning and organization aid'
+  ]
+};
+
+// Helper functions defined outside component to avoid re-creation on each render
+const generateAvatarUrl = (agent: Agent): string => {
+  const style = AVATAR_STYLES[Math.floor(Math.random() * AVATAR_STYLES.length)];
+  const seed = agent.name || `agent-${agent.id}`;
+  return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}`;
+};
+
+const generateDescription = (category: string): string => {
+  const categoryDescriptions = DESCRIPTIONS[category as keyof typeof DESCRIPTIONS] || DESCRIPTIONS['Business'];
+  return categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)];
+};
+
+const generateTraits = (category: string, count: number = 3): string[] => {
+  const categoryTraits = TRAITS[category as keyof typeof TRAITS] || TRAITS['Business'];
+  const shuffled = [...categoryTraits].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
+// Check if an error message indicates the agent doesn't exist
+const isAgentNotExistError = (error: any): boolean => {
+  if (!error) return false;
+  const errorMessage = error.toString().toLowerCase();
+  return errorMessage.includes('agent does not exist') || 
+         errorMessage.includes('execution reverted');
+};
+
 // Component to safely use searchParams
 function MarketplaceContent() {
   const { theme = 'light' } = useTheme();
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category');
+  
   // Use the actual contract implementation
   const { totalAgents, isLoadingTotalAgents, getAgentDetails, userRentedAgentIds } = useContract();
   const { address } = useAccount();
   const isConnected = Boolean(address);
+  
   const [agents, setAgents] = useState<EnhancedAgent[]>([]);
   const [isLoadingAgents, setIsLoadingAgents] = useState(true);
   const [filteredAgents, setFilteredAgents] = useState<EnhancedAgent[]>([]);
@@ -39,105 +106,91 @@ function MarketplaceContent() {
     initialCategory ? [initialCategory] : []
   );
   const [rentedAgentIds, setRentedAgentIds] = useState<number[]>([]);
-  
-  const categories = ['Education', 'Entertainment', 'Business', 'Personal'];
-  const traits = {
-    'Education': ['Patient', 'Analytical', 'Knowledgeable', 'Articulate', 'Structured'],
-    'Entertainment': ['Creative', 'Humorous', 'Engaging', 'Improvisational', 'Expressive'],
-    'Business': ['Professional', 'Strategic', 'Analytical', 'Decisive', 'Motivational'],
-    'Personal': ['Empathetic', 'Supportive', 'Motivational', 'Encouraging', 'Intuitive']
-  };
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
 
-  const descriptions = {
-    'Education': [
-      'Expert tutor for all grade levels',
-      'Specialized language instructor',
-      'Subject matter expert for academic topics',
-      'Test preparation assistant',
-      'Personalized learning companion'
-    ],
-    'Entertainment': [
-      'Creative storyteller for immersive experiences',
-      'Character roleplaying personality',
-      'Interactive game companion',
-      'Humor and comedy specialist',
-      'Historical figure simulation'
-    ],
-    'Business': [
-      'Strategic business advisor',
-      'Sales training assistant',
-      'Industry consultant with expertise',
-      'Market analysis specialist',
-      'Customer service representative'
-    ],
-    'Personal': [
-      'Life coach for personal growth',
-      'Fitness training companion',
-      'Mental health support assistant',
-      'Productivity enhancement assistant',
-      'Daily planning and organization aid'
-    ]
-  };
-
-  // Generate a random avatar URL based on agent info
-  const generateAvatarUrl = (agent: Agent): string => {
-    const style = AVATAR_STYLES[Math.floor(Math.random() * AVATAR_STYLES.length)];
-    const background = AVATAR_BACKGROUNDS[Math.floor(Math.random() * AVATAR_BACKGROUNDS.length)];
-    // Use agent name as seed for consistency when re-rendering
-    const seed = agent.name || `agent-${agent.id}`;
-    return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&background=${background}`;
-  };
-
-  // Generate a description based on agent category
-  const generateDescription = (category: string): string => {
-    const categoryDescriptions = descriptions[category as keyof typeof descriptions] || descriptions['Business'];
-    return categoryDescriptions[Math.floor(Math.random() * categoryDescriptions.length)];
-  };
-
-  // Generate traits based on agent category
-  const generateTraits = (category: string, count: number = 3): string[] => {
-    const categoryTraits = traits[category as keyof typeof traits] || traits['Business'];
-    const shuffled = [...categoryTraits].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-  };
-
-  // Fetch agents from the contract
+  // Fetch agents from the contract only once when component mounts
   useEffect(() => {
-    let mounted = true;
+    if (hasAttemptedFetch) return; // Only run once
+    
+    let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
     
     const fetchAgents = async () => {
-      if (typeof totalAgents !== 'number') {
-        return;
-      }
-
       try {
         setIsLoadingAgents(true);
-        const agentPromises: Promise<EnhancedAgent | null>[] = [];
+        setHasAttemptedFetch(true);
         
-        // In the contract, agent IDs start from 0, not 1
-        for (let i = 0; i < totalAgents; i++) {
-          agentPromises.push(getAgentDetails(i).then(agent => {
-            if (!agent || !mounted) return null;
-            
-            // Enhance agent with UI properties
-            return {
-              ...agent,
-              imageUrl: agent.avatar || generateAvatarUrl(agent),
-              traits: generateTraits(agent.category),
-              description: generateDescription(agent.category),
-              rating: agent.averageRating || 4 + Math.random()
-            };
-          }));
+        // Try to fetch agents with IDs 0-19 (broader range to find existing agents)
+        const maxAgentId = 30;
+        console.log(`Attempting to fetch agents with IDs 0-${maxAgentId-1}`);
+        
+        const validAgents: EnhancedAgent[] = [];
+        
+        // Process agents in batches to avoid overwhelming the network
+        const batchSize = 5;
+        
+        for (let batchStart = 0; batchStart < maxAgentId; batchStart += batchSize) {
+          const batchEnd = Math.min(batchStart + batchSize, maxAgentId);
+          const batchPromises: Promise<EnhancedAgent | null>[] = [];
+          
+          for (let i = batchStart; i < batchEnd; i++) {
+            batchPromises.push(
+              getAgentDetails(i)
+                .then(agent => {
+                  if (!agent || !isMounted) return null;
+                  
+                  // Filter out agents with default names like "Agent X"
+                  if (agent.name.match(/^Agent \d+$/)) {
+                    console.log(`Skipping agent with default name: ${agent.name}`);
+                    return null;
+                  }
+                  
+                  console.log(`Successfully fetched agent ${i}: ${agent.name}`);
+                  
+                  return {
+                    ...agent,
+                    imageUrl: agent.avatar || generateAvatarUrl(agent),
+                    traits: agent.traits && agent.traits.length > 0 
+                      ? agent.traits 
+                      : generateTraits(agent.category),
+                    description: agent.expertise && agent.expertise.length > 0 
+                      ? agent.expertise.join(", ") 
+                      : generateDescription(agent.category),
+                    rating: agent.averageRating 
+                      ? (agent.averageRating / 100) // Divide by 100 if coming from contract 
+                      : 4 + Math.random(),
+                  };
+                })
+                .catch(error => {
+                  // Check if the error indicates the agent doesn't exist
+                  if (isAgentNotExistError(error)) {
+                    console.log(`Agent ${i} does not exist, skipping`);
+                  } else {
+                    console.error(`Error fetching agent ${i}:`, error);
+                  }
+                  return null;
+                })
+            );
+          }
+          
+          const batchResults = await Promise.all(batchPromises);
+          validAgents.push(...batchResults.filter(agent => agent !== null) as EnhancedAgent[]);
+          
+          // Break early if we've found enough agents
+          if (validAgents.length >= 8) {
+            break;
+          }
         }
 
-        const fetchedAgents = (await Promise.all(agentPromises)).filter(agent => agent !== null) as EnhancedAgent[];
-        if (mounted) {
-          setAgents(fetchedAgents);
+        if (isMounted) {
+          console.log(`Found ${validAgents.length} valid agents`);
+          setAgents(validAgents);
+          setFilteredAgents(validAgents);
           setIsLoadingAgents(false);
         }
       } catch (error) {
-        console.error('Error fetching agents:', error);
-        if (mounted) {
+        console.error('Error in fetchAgents function:', error);
+        if (isMounted) {
           setIsLoadingAgents(false);
         }
       }
@@ -145,58 +198,68 @@ function MarketplaceContent() {
 
     fetchAgents();
     
-    // Cleanup function to prevent state updates if the component unmounts
+    // Set a timeout to prevent indefinite loading (15 seconds)
+    timeoutId = setTimeout(() => {
+      if (isMounted && isLoadingAgents) {
+        console.log('Loading timeout reached');
+        setIsLoadingAgents(false);
+      }
+    }, 15000);
+    
     return () => {
-      mounted = false;
+      isMounted = false;
+      clearTimeout(timeoutId);
     };
-  }, [totalAgents]);
+  }, []); // Empty dependency array to ensure it only runs once
+
   // Check which agents the user has rented
   useEffect(() => {
-    const checkRentedAgents = async () => {
-      if (!address) return;
-      if (!isConnected || !address) return;
-      
-      try {
-        // Get the user's rented agent IDs
-        if (userRentedAgentIds) {
-          const ids = Array.isArray(userRentedAgentIds)
-            ? userRentedAgentIds.map(id => Number(id))
-            : Object.keys(userRentedAgentIds).map(id => Number(id));
-          
-          setRentedAgentIds(ids);
-        }
-      } catch (error) {
-        console.error("Error checking rented agents:", error);
-      }
-    };
+    if (!isConnected || !address) return;
     
-    checkRentedAgents();
+    try {
+      if (userRentedAgentIds) {
+        const ids = Array.isArray(userRentedAgentIds)
+          ? userRentedAgentIds.map(id => Number(id))
+          : [];
+        
+        setRentedAgentIds(ids);
+      }
+    } catch (error) {
+      console.error("Error checking rented agents:", error);
+    }
   }, [address, isConnected, userRentedAgentIds]);
 
   // Filter agents based on search term and categories
   useEffect(() => {
-    if (isLoadingAgents) return;
+    if (!agents) return;
     
-    let results = [...agents];
+    // Filter out any agents with default names or that appear to be placeholder fallbacks
+    const validAgents = agents.filter(agent => {
+      // Filter out agents with generic "Agent X" names which indicate they don't really exist
+      if (agent.name.match(/^Agent \d+$/)) return false;
+      
+      // Also filter out agents with no category or "Unknown" category
+      if (!agent.category || agent.category === "Unknown") return false;
+      
+      return true;
+    });
     
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      results = results.filter(agent => 
-        agent.name.toLowerCase().includes(term) || 
-        agent.description.toLowerCase().includes(term) ||
-        agent.traits.some(trait => trait.toLowerCase().includes(term))
-      );
-    }
+    // Now apply search and category filters to the valid agents
+    const filtered = validAgents.filter(agent => {
+      // Search term filter
+      const matchesSearch = searchTerm === '' || 
+        agent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (agent.description && agent.description.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // Category filter
+      const matchesCategory = selectedCategories.length === 0 || 
+        selectedCategories.includes(agent.category);
+      
+      return matchesSearch && matchesCategory;
+    });
     
-    if (selectedCategories.length > 0) {
-      results = results.filter(agent => 
-        selectedCategories.includes(agent.category) ||
-        agent.traits.some(trait => selectedCategories.includes(trait))
-      );
-    }
-    
-    setFilteredAgents(results);
-  }, [agents, searchTerm, selectedCategories, isLoadingAgents]);
+    setFilteredAgents(filtered);
+  }, [agents, searchTerm, selectedCategories]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -208,6 +271,11 @@ function MarketplaceContent() {
         ? prev.filter(c => c !== category) 
         : [...prev, category]
     );
+  };
+
+  // Function to retry fetching
+  const handleRetryFetch = () => {
+    setHasAttemptedFetch(false);
   };
 
   return (
@@ -257,7 +325,7 @@ function MarketplaceContent() {
           </div>
           
           <div className="flex flex-wrap gap-2">
-            {categories.map(category => (
+            {CATEGORIES.map(category => (
               <button
                 key={category}
                 onClick={() => toggleCategory(category)}
@@ -304,7 +372,7 @@ function MarketplaceContent() {
       )}
       
       {/* Agent grid */}
-      {!isLoadingAgents && (
+      {!isLoadingAgents && agents.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredAgents.map((agent, index) => (
             <motion.div
@@ -405,8 +473,8 @@ function MarketplaceContent() {
         </div>
       )}
       
-      {/* Empty state */}
-      {!isLoadingAgents && filteredAgents.length === 0 && (
+      {/* Empty state - when no agents were found */}
+      {!isLoadingAgents && agents.length === 0 && (
         <motion.div 
           className="text-center py-16 max-w-md mx-auto"
           initial={{ opacity: 0 }}
@@ -417,6 +485,28 @@ function MarketplaceContent() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-white">No agents found</h3>
+          <p className="text-gray-500 dark:text-gray-400 mb-4">No agents are currently available in the marketplace.</p>
+          <button 
+            onClick={handleRetryFetch}
+            className="px-4 py-2 bg-sei-blue text-white dark:bg-sei-light-blue rounded-lg text-sm font-medium hover:bg-sei-blue/90 dark:hover:bg-sei-light-blue/90 transition-colors shadow-sm"
+          >
+            Retry Fetching Agents
+          </button>
+        </motion.div>
+      )}
+      
+      {/* Empty search state - when agents exist but none match search/filter */}
+      {!isLoadingAgents && agents.length > 0 && filteredAgents.length === 0 && (
+        <motion.div 
+          className="text-center py-16 max-w-md mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 className="text-xl font-semibold mb-2 text-gray-700 dark:text-white">No matching agents</h3>
           <p className="text-gray-500 dark:text-gray-400 mb-4">Try adjusting your search or filters.</p>
           {selectedCategories.length > 0 && (
             <button 

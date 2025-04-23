@@ -3,6 +3,12 @@ import { useAccount, useReadContract, useWriteContract, useWaitForTransactionRec
 import { SeiForgeABI, SeiForgeAddress } from '@/config/contract';
 import { zeroAddress } from 'viem';
 import { parseEther } from 'viem';
+import { ethers } from 'ethers';
+import { seiTestnet } from '@/config/chains';
+
+// Create ethers provider and contract instance
+const provider = new ethers.JsonRpcProvider(seiTestnet.rpcUrls.default.http[0]);
+const contract = new ethers.Contract(SeiForgeAddress, SeiForgeABI, provider);
 
 export interface Agent {
   id: number;
@@ -15,8 +21,8 @@ export interface Agent {
   totalRentals: number;
   averageRating: number;
   isActive: boolean;
-  traits?: string[];   // Adding traits as an optional property
-  expertise?: string[]; // Adding expertise as an optional property too since it's used similarly
+  traits?: string[];
+  expertise?: string[];
 }
 
 export function useContract() {
@@ -127,79 +133,119 @@ export function useContract() {
     });
   };
 
-  // Get agent details by ID (modified to map contract data structure correctly)
+  // Get agent details by ID - Now using ethers.js
   const getAgentDetails = async (agentId: number): Promise<Agent | null> => {
     try {
-      // Based on the contract structure, agent IDs start from 0 not 1
-      // This is a simplified mock for the UI
-      // In a real implementation, you would use a proper RPC call to the contract
+      console.log('Fetching agent details for ID:', agentId);
       
-      // Sample agent data based on the contract structure
-      const styles = ['bottts', 'pixel-art', 'shapes', 'identicon', 'micah'];
-      const randomStyle = styles[agentId % styles.length];
+      // Get agent details from contract using ethers.js
+      const agentDetails = await contract.getAgentDetails(agentId);
       
-      // Sample agent names and categories based on agent ID
-      const sampleNames = [
-        "Math x Fun",
-        "History Explorer",
-        "Business Advisor",
-        "Fitness Coach",
-        "Language Tutor",
-        "Sci-Fi Storyteller"
-      ];
+      // Check if we got a valid response
+      if (!agentDetails) {
+        console.log('No agent details found for ID:', agentId);
+        return null;
+      }
       
-      const sampleCategories = ["Education", "Entertainment", "Business", "Personal"];
+      console.log('Raw agent details:', agentDetails);
       
-      const mockAgentData = {
+      // Now we'll handle the response differently based on what ethers.js returns
+      // With ethers.js, the result might be an array or an object with named properties
+      let name, category, avatar, creator, rentalPricePerDay, totalEarnings, totalRentals, isActive;
+      
+      if (Array.isArray(agentDetails)) {
+        // If it's an array, we'll destructure it based on the contract function's return values
+        [name, category, avatar, creator, rentalPricePerDay, totalEarnings, totalRentals, isActive] = agentDetails;
+      } else {
+        // If it's an object with named properties
+        ({ name, category, avatar, creator, rentalPricePerDay, totalEarnings, totalRentals, isActive } = agentDetails);
+      }
+      
+      // Check if this is a valid agent or just a placeholder with a default name
+      if (!name || name.match(/^Agent \d+$/)) {
+        console.log('Skipping agent with default name:', name);
+        return null;
+      }
+      
+      // Get the agent rating separately (since it's not part of getAgentDetails)
+      const ratingInfo = await contract.getAgentRating(agentId);
+      const averageRating = ratingInfo ? Number(ratingInfo.averageRating || 0) : 0;
+      
+      // Try to fetch traits and expertise (these might not be in the getAgentDetails call)
+      let traits: string[] = [];
+      let expertise: string[] = [];
+      
+      try {
+        // Try to get the raw agent data from aiAgents mapping to get more info
+        const rawAgent = await contract.aiAgents(agentId);
+        if (rawAgent) {
+          // Note: traits and expertise might not be accessible through this API
+          // We'll use default values if not available
+        }
+      } catch (e) {
+        console.log('Could not fetch additional agent data, using defaults');
+      }
+      
+      // Create an Agent object from the retrieved data
+      const agent: Agent = {
         id: agentId,
-        name: sampleNames[agentId % sampleNames.length],
-        category: sampleCategories[agentId % sampleCategories.length],
-        avatar: `https://api.dicebear.com/7.x/${randomStyle}/svg?seed=${encodeURIComponent(sampleNames[agentId % sampleNames.length])}`,
-        creator: '0x2ec8175015Bef5ad1C0BE1587C4A377bC083A2d8',
-        rentalPricePerDay: BigInt(1 * 10**17), // 0.1 SEI
-        totalEarnings: BigInt(agentId * 0.05 * 10**18),
-        totalRentals: agentId * 5,
-        averageRating: 3 + (agentId % 3),
-        isActive: true
+        name: name || `Agent ${agentId}`,
+        category: category || "Unknown",
+        avatar: avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=agent-${agentId}`,
+        creator: creator || zeroAddress,
+        rentalPricePerDay: BigInt(rentalPricePerDay?.toString() || "0"),
+        totalEarnings: BigInt(totalEarnings?.toString() || "0"),
+        totalRentals: Number(totalRentals || 0),
+        averageRating,
+        isActive: Boolean(isActive),
+        traits,
+        expertise
       };
       
-      return mockAgentData;
+      return agent;
     } catch (error) {
-      console.error('Error fetching agent details', error);
+      console.error('Error fetching agent details from contract:', error);
+      
+      // For other errors, provide a minimal fallback that will be filtered out by name check
       return null;
     }
   };
 
-  // Check if user has active rental and get rental details
+  // Check if user has active rental and get rental details - Now using ethers.js
   const hasActiveRental = async (userId: string, agentId: number): Promise<{
     hasRental: boolean;
     rentalEndTime?: number;
     remainingDays?: number;
   }> => {
     try {
-      // In a real implementation, this would check the blockchain for active rentals
-      // For now, we'll use a deterministic method for testing/development
+      // Check if the user has an active rental for this agent
+      const hasRental = await contract.hasActiveRental(userId, agentId);
       
-      // Use the combination of user address and agent ID to determine if there's an active rental
-      const hasRental = userId.toLowerCase().includes(agentId.toString()) || 
-                       (userId.length > 0 && agentId % 2 === 0);
-                       
       if (hasRental) {
-        // Calculate a future end date based on the current time
-        const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
-        const endTime = currentTime + (86400 * 7); // 7 days from now
-        const remainingDays = Math.ceil((endTime - currentTime) / 86400);
+        // Get active rentals for this agent
+        const rentals = await contract.getActiveRentals(agentId);
         
-        return {
-          hasRental: true,
-          rentalEndTime: endTime,
-          remainingDays
-        };
+        // Find the rental for this specific user
+        const userRental = rentals.find((rental: any) => 
+          rental.renter.toLowerCase() === userId.toLowerCase() && rental.isActive
+        );
+        
+        if (userRental) {
+          const currentTime = Math.floor(Date.now() / 1000);
+          const endTime = Number(userRental.endTime);
+          const remainingDays = Math.ceil((endTime - currentTime) / 86400);
+          
+          return {
+            hasRental: true,
+            rentalEndTime: endTime,
+            remainingDays: remainingDays > 0 ? remainingDays : 0
+          };
+        }
       }
       
       return { hasRental: false };
     } catch (error) {
-      console.error('Error checking rental status:', error);
+      console.error('Error checking rental status from contract:', error);
       return { hasRental: false };
     }
   };
